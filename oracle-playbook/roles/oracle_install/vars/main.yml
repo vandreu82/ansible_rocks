@@ -1,0 +1,5 @@
+---
+oracle_installers:
+  - LINUX.X64_193000_db_home.zip
+
+# vars file for roles/oracle_install
