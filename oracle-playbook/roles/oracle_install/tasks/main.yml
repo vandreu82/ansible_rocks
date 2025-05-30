@@ -20,11 +20,6 @@
     remote_src: yes
   loop: "{{ oracle_installers }}"
 
-- name: Ejecutar runInstaller en modo silent
-  ansible.builtin.command: >
-    /u01/app/oracle/product/19c/dbhome_1/runInstaller -silent -responseFile /tmp/db_install.rsp
-  become_user: oracle
-
 - name: Dar permisos completos de /u01 a oracle
   ansible.builtin.command: chown -R oracle:oinstall /u01
   become: yes
@@ -32,5 +27,10 @@
 - name: Asegurar permisos de ejecución en /u01
   ansible.builtin.command: chmod -R 755 /u01
   become: yes
+
+- name: Ejecutar runInstaller en modo silent
+  ansible.builtin.command: >
+    /u01/app/oracle/product/19c/dbhome_1/runInstaller -silent -responseFile /tmp/db_install.rsp
+  become_user: oracle
 
 # tasks file for roles/oracle_install
