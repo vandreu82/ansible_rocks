@@ -20,11 +20,4 @@
     remote_src: yes
   loop: "{{ oracle_installers }}"
 
-- name: Ejecutar instalador en modo silent
-  ansible.builtin.command: >
-    /u01/app/database/runInstaller -silent -responseFile /tmp/db_install.rsp
-  become_user: oracle
-  args:
-    creates: /u01/app/oracle/product/19c/dbhome_1/bin/sqlplus
-
 # tasks file for roles/oracle_install
