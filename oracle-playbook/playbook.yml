@@ -1,6 +1,6 @@
 ---
 - name: Desplegar Oracle CDB en Oracle Linux 9.5
-  hosts: oracle_servers
+  hosts: all
   become: yes
   vars_files:
     - group_vars/all.yml
