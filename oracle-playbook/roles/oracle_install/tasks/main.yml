@@ -1,9 +1,9 @@
 ---
-- name: Copiar instaladores de Oracle
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: /tmp/
-  loop: "{{ oracle_installers }}"
+- name: Descomprimir instalador de Oracle en el host remoto
+  ansible.builtin.unarchive:
+    src: "/home/oracle/LINUX.X64_193000_db_home.zip"
+    dest: "/u01/app/"
+    remote_src: yes
 
 - name: Descomprimir instaladores
   ansible.builtin.unarchive:
