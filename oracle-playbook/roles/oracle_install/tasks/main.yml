@@ -10,13 +10,13 @@
 - name: Descomprimir instalador de Oracle en el host remoto
   ansible.builtin.unarchive:
     src: "/tmp/LINUX.X64_193000_db_home.zip"
-    dest: "/u01/app/oracle/product/19c/db_home1/"
+    dest: "/u01/app/oracle/product/19c/dbhome_1/"
     remote_src: yes
 
 - name: Descomprimir instaladores
   ansible.builtin.unarchive:
     src: "/tmp/{{ item }}"
-    dest: /u01/app/oracle/product/19c/db_home1/
+    dest: /u01/app/oracle/product/19c/dbhome_1/
     remote_src: yes
   loop: "{{ oracle_installers }}"
 
