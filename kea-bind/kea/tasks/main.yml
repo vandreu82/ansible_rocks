@@ -1,3 +1,13 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for kea
+- name: Instalar Kea DHCP
+  apt:
+    name: kea-dhcp4-server
+    update_cache: true
+
+- name: Configurar Kea DHCP
+  template:
+    src: kea-dhcp4.conf.j2
+    dest: /etc/kea/kea-dhcp4.conf
+  notify: Reiniciar Kea

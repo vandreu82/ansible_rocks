@@ -1,0 +1,10 @@
+$TTL 86400
+@   IN  SOA ns. example.com. admin.example.com. (
+        1     ; Serial
+        3600  ; Refresh
+        1800  ; Retry
+        604800; Expire
+        86400 ); Minimum
+@       IN  NS      ns.
+ns      IN  A       {{ server_ip }}
+host1   IN  A       172.10.10.10

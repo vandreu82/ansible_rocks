@@ -1,3 +1,18 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for bind
+- name: Instalar BIND9
+  apt:
+    name: bind9
+    update_cache: true
+
+- name: Copiar zona directa
+  template:
+    src: db.172.10.10.j2
+    dest: /etc/bind/db.172.10.10
+
+- name: Configurar zona en named.conf.local
+  template:
+    src: named.conf.local.j2
+    dest: /etc/bind/named.conf.local
+  notify: Reiniciar BIND

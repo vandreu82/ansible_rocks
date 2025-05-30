@@ -1,0 +1,35 @@
+{
+  "Dhcp4": {
+    "interfaces-config": {
+      "interfaces": [ "{{ interface_name }}" ]
+    },
+    "subnet4": [
+      {
+        "subnet": "172.10.10.0/24",
+        "pools": [ { "pool": "172.10.10.10 - 172.10.10.100" } ],
+        "option-data": [
+          {
+            "name": "routers",
+            "data": "{{ server_ip }}"
+          },
+          {
+            "name": "domain-name-servers",
+            "data": "{{ server_ip }}"
+          }
+        ]
+      }
+    ],
+    "lease-database": {
+      "type": "memfile",
+      "persist": true,
+      "name": "/var/lib/kea/dhcp4.leases"
+    },
+    "loggers": [ {
+      "name": "kea-dhcp4",
+      "output_options": [ {
+        "output": "/var/log/kea-dhcp4.log"
+      } ],
+      "severity": "INFO"
+    } ]
+  }
+}

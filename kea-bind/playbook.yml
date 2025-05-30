@@ -1,0 +1,23 @@
+- name: Instalar y configurar DHCP (Kea) y DNS (BIND)
+  hosts: all
+  become: true
+  vars:
+    interface_name: "ens19"
+    server_ip: "172.10.10.254"
+
+  roles:
+    - kea
+    - bind
+
+  handlers:
+    - name: Reiniciar Kea
+      systemd:
+        name: kea-dhcp4-server
+        state: restarted
+        enabled: true
+
+    - name: Reiniciar BIND
+      systemd:
+        name: bind9
+        state: restarted
+        enabled: true
