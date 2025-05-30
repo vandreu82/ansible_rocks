@@ -20,4 +20,12 @@
     remote_src: yes
   loop: "{{ oracle_installers }}"
 
+- name: Dar permisos completos de /u01 a oracle
+  ansible.builtin.command: chown -R oracle:oinstall /u01
+  become: yes
+
+- name: Asegurar permisos de ejecución en /u01
+  ansible.builtin.command: chmod -R 755 /u01
+  become: yes
+
 # tasks file for roles/oracle_install
