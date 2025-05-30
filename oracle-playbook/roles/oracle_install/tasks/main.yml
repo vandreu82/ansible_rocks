@@ -1,4 +1,12 @@
 ---
+- name: Crear /u01/app/ si no existe
+  ansible.builtin.file:
+    path: /u01/app/
+    state: directory
+    owner: oracle
+    group: oinstall
+    mode: '0755'
+
 - name: Descomprimir instalador de Oracle en el host remoto
   ansible.builtin.unarchive:
     src: "/home/oracle/LINUX.X64_193000_db_home.zip"
