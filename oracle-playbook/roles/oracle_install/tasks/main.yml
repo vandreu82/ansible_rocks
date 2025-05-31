@@ -1,7 +1,7 @@
 ---
-- name: Instalar el paquete RPM de Oracle Database 23ai
-  ansible.builtin.dnf:
-    name: oracle-database-free*
+- name: Instalar el RPM de Oracle Database 23ai desde /tmp
+  ansible.builtin.yum:
+    name: /tmp/oracle-database-free-23ai-1.0-1.el9.x86_64.rpm
     state: present
   become: yes
 
