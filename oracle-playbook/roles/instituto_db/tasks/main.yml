@@ -1,7 +1,7 @@
 ---
 - name: Crear base de datos INSTITUTO
   ansible.builtin.command: >
-    dbca -silent
+    /opt/oracle/product/23ai/dbhomeFree/bin/dbca -silent
     -createDatabase
     -gdbName INSTITUTO
     -sid INSTITUTO
