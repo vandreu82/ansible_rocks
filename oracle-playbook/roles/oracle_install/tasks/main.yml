@@ -5,6 +5,4 @@
     state: present
   become: yes
 
-- name: Configurar la base de datos Oracle 23ai
-  ansible.builtin.command: /etc/init.d/oracle-free-23ai configure
-  become: yes
+
