@@ -6,6 +6,14 @@
     state: enabled
   notify: Reload firewall
 
+- name: Cambiar HOST=localhost a HOST=0.0.0.0 en listener.ora
+  ansible.builtin.replace:
+    path: /opt/oracle/product/23ai/dbhomeFree/network/admin/listener.ora
+    regexp: 'HOST\s*=\s*localhost'
+    replace: 'HOST = 0.0.0.0'
+  become: yes
+  notify: Restart listener
+
 - name: Añadir entrada INSTITUTO en tnsnames.ora
   ansible.builtin.blockinfile:
     path: /opt/oracle/product/23ai/dbhomeFree/network/admin/tnsnames.ora
@@ -43,6 +51,17 @@
     owner: oracle
     group: oinstall
     mode: '0644'
+
+- name: Otorgar privilegios a instituto_admin para crear tablas
+  ansible.builtin.shell: |
+    export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+    export PATH=$ORACLE_HOME/bin:$PATH
+    export ORACLE_SID=FREE
+    echo "
+    ALTER SESSION SET CONTAINER=INSTITUTO;
+    GRANT CONNECT, RESOURCE TO instituto_admin;
+    " | $ORACLE_HOME/bin/sqlplus -s / as sysdba
+  become_user: oracle
 
 - name: Ejecutar script SQL como instituto_admin para crear tablas y registros
   ansible.builtin.shell: |

@@ -3,3 +3,12 @@
   ansible.builtin.systemd:
     name: firewalld
     state: reloaded
+
+- name: Restart listener
+  ansible.builtin.shell: |
+    export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+    export PATH=$ORACLE_HOME/bin:$PATH
+    export ORACLE_SID=FREE
+    $ORACLE_HOME/bin/lsnrctl stop
+    $ORACLE_HOME/bin/lsnrctl start
+  become_user: oracle
