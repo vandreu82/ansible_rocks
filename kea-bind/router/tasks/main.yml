@@ -1,0 +1,38 @@
+- name: Habilitar reenvío IPv4 de forma persistente
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: yes
+
+- name: Instalar iptables-persistent
+  apt:
+    name: iptables-persistent
+    state: present
+    update_cache: yes
+
+- name: Añadir regla MASQUERADE si no existe
+  shell: |
+    iptables -t nat -C POSTROUTING -o {{ wan_iface }} -j MASQUERADE 2>/dev/null || \
+    iptables -t nat -A POSTROUTING -o {{ wan_iface }} -j MASQUERADE
+  args:
+    executable: /bin/bash
+
+- name: Añadir FORWARD de LAN a WAN si no existe
+  shell: |
+    iptables -C FORWARD -i {{ lan_iface }} -o {{ wan_iface }} -j ACCEPT 2>/dev/null || \
+    iptables -A FORWARD -i {{ lan_iface }} -o {{ wan_iface }} -j ACCEPT
+  args:
+    executable: /bin/bash
+
+- name: Añadir FORWARD de WAN a LAN para conexiones establecidas
+  shell: |
+    iptables -C FORWARD -i {{ wan_iface }} -o {{ lan_iface }} -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null || \
+    iptables -A FORWARD -i {{ wan_iface }} -o {{ lan_iface }} -m state --state RELATED,ESTABLISHED -j ACCEPT
+  args:
+    executable: /bin/bash
+
+- name: Guardar reglas iptables persistentes
+  shell: iptables-save > /etc/iptables/rules.v4
+  args:
+    executable: /bin/bash

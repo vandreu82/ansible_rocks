@@ -1,0 +1,13 @@
+interface {{ lan_iface }}
+{
+    AdvSendAdvert on;
+    AdvManagedFlag on;
+    MaxRtrAdvInterval 30;
+    prefix 2001:db8:0:1::/64
+    {
+        AdvOnLink on;
+        AdvAutonomous off;
+        AdvRouterAddr on;
+    };
+    RDNSS 2001:db8:0:1::1 { };
+};

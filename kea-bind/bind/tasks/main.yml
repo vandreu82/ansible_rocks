@@ -6,13 +6,19 @@
     name: bind9
     update_cache: true
 
-- name: Copiar zona directa
+- name: Copiar zona reversa
   template:
     src: db.172.10.10.j2
     dest: /etc/bind/db.172.10.10
 
-- name: Configurar zona en named.conf.local
+- name: Copiar zona directa {{ domain }}
+  template:
+    src: db.ansiblerocks.lan.j2
+    dest: /etc/bind/db.{{ domain }}
+
+- name: Configurar zonas en named.conf.local
   template:
     src: named.conf.local.j2
     dest: /etc/bind/named.conf.local
   notify: Reiniciar BIND
+

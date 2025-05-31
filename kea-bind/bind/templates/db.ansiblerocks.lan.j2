@@ -1,10 +1,14 @@
 $TTL 86400
 @   IN  SOA ns.{{ domain }}. admin.{{ domain }}. (
-        {{ serial | default("%Y%m%d01" | strftime) }} ; Serial
+        {{ "%Y%m%d01" | strftime }} ; Serial
         3600       ; Refresh
         1800       ; Retry
         604800     ; Expire
         86400 )    ; Minimum
 
     IN  NS      ns.{{ domain }}.
-10  IN  PTR     host1.{{ domain }}.
+ns  IN  A       {{ server_ip }}
+solo IN  A      {{ server_ip }}
+
+solo      IN  AAAA   2001:db8:0:1::1
+manjaro   IN  AAAA   2001:db8:0:1::10

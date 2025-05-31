@@ -4,18 +4,17 @@
   vars:
     interface_name: "ens19"
     server_ip: "172.10.10.254"
+    domain: ansiblerocks.lan
+    lan_iface: ens19
+    wan_iface: ens18
 
   roles:
     - kea
     - bind
+    - router
+    - radvd
 
   handlers:
-    - name: Reiniciar Kea
-      systemd:
-        name: kea-dhcp4-server
-        state: restarted
-        enabled: true
-
     - name: Reiniciar BIND
       systemd:
         name: bind9

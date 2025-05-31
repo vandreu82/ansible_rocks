@@ -1,3 +1,14 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # handlers file for kea
+- name: Reiniciar Kea v4
+  systemd:
+    name: kea-dhcp4-server
+    state: restarted
+    enabled: true
+
+- name: Reiniciar Kea v6
+  systemd:
+    name: kea-dhcp6-server
+    state: restarted
+    enabled: true
