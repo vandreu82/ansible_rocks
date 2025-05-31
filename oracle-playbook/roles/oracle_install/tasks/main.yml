@@ -5,4 +5,27 @@
     state: present
   become: yes
 
+- name: Instalar expect
+  ansible.builtin.yum:
+    name: expect
+    state: present
+  become: yes
+
+- name: Copiar script expect para configurar Oracle
+  ansible.builtin.copy:
+    dest: /tmp/oracle_configure.expect
+    mode: '0755'
+    content: |
+      #!/usr/bin/expect -f
+      set timeout -1
+      spawn /etc/init.d/oracle-free-23ai configure
+      expect "Specify a password*" { send "Oracle123\r" }
+      expect "Confirm the password*" { send "Oracle123\r" }
+      expect eof
+  become: yes
+
+- name: Ejecutar script expect para configurar Oracle Database Free
+  ansible.builtin.command: /usr/bin/expect /tmp/oracle_configure.expect
+  become: yes
+
 
