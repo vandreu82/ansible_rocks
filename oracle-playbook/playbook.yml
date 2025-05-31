@@ -1,6 +1,6 @@
 ---
 - name: Desplegar Oracle Database 23c AI con base de datos personalizada
-  hosts: oracle_servers
+  hosts: all
   become: yes
   vars_files:
     - group_vars/all.yml
