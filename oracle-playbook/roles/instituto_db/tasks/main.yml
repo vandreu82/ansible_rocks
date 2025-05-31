@@ -1,4 +1,13 @@
 ---
+- name: Configurar entorno Oracle en .bash_profile de oracle
+  ansible.builtin.blockinfile:
+    path: /home/oracle/.bash_profile
+    block: |
+      export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+      export PATH=$ORACLE_HOME/bin:$PATH
+      export ORACLE_SID=FREE
+      export NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+
 - name: Abrir el puerto 1521 en el firewall permanentemente
   ansible.builtin.firewalld:
     port: 1521/tcp
