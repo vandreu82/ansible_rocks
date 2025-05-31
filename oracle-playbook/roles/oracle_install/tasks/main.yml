@@ -27,5 +27,8 @@
 - name: Ejecutar script expect para configurar Oracle Database Free
   ansible.builtin.command: /usr/bin/expect /tmp/oracle_configure.expect
   become: yes
-
+  register: configure_output
+  failed_when: >
+    configure_output.rc != 0 and
+    'already configured' not in configure_output.stdout
 
