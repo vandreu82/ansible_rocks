@@ -2,7 +2,6 @@
   hosts: all
   become: true
   vars:
-    interface_name: "ens19"
     server_ip: "172.10.10.254"
     domain: ansiblerocks.lan
     lan_iface: ens19
