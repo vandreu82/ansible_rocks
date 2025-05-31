@@ -1,19 +1,23 @@
 ---
 - name: Crear la PDB INSTITUTO en la CDB FREE
   ansible.builtin.shell: |
-    . /home/oracle/.bash_profile
+    export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+    export PATH=$ORACLE_HOME/bin:$PATH
+    export ORACLE_SID=FREE
     echo "
     ALTER SESSION SET CONTAINER=CDB$ROOT;
     ALTER SYSTEM SET db_create_file_dest = '/opt/oracle/oradata/FREE' SCOPE=BOTH;
     CREATE PLUGGABLE DATABASE INSTITUTO
       ADMIN USER instituto_admin IDENTIFIED BY Oracle123;
     ALTER PLUGGABLE DATABASE INSTITUTO OPEN;
-    " | sqlplus sys/Oracle123@FREE as sysdba
+    " | $ORACLE_HOME/bin/sqlplus -s sys/Oracle123@FREE as sysdba
   become_user: oracle
 
 - name: Crear tabla y registros en la PDB INSTITUTO
   ansible.builtin.shell: |
-    . /home/oracle/.bash_profile
+    export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+    export PATH=$ORACLE_HOME/bin:$PATH
+    export ORACLE_SID=FREE
     echo "
     ALTER SESSION SET CONTAINER=INSTITUTO;
     CREATE TABLE profesores (
@@ -30,5 +34,5 @@
     INSERT INTO profesores (nombre, especialidad) VALUES ('Miguel Angel Ibañez', 'Redes');
 
     COMMIT;
-    " | sqlplus sys/Oracle123@FREE as sysdba
+    " | $ORACLE_HOME/bin/sqlplus -s sys/Oracle123@FREE as sysdba
   become_user: oracle
