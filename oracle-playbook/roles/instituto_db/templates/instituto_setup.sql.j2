@@ -9,11 +9,10 @@ CREATE TABLE profesor (
 );
 
 INSERT INTO profesor (id_profesor, nombre, especialidad) VALUES (1, 'Alejandro Roca Alhama', 'Sistemas');
-INSERT INTO profesor (id_profesor, nombre, especialidad) VALUES (2, 'Jose Antonio Moñino', 'Aplicaciones Web');
+INSERT INTO profesor (id_profesor, nombre, especialidad) VALUES (2, 'Jose Antonio Jamonino', 'Aplicaciones Web');
 INSERT INTO profesor (id_profesor, nombre, especialidad) VALUES (3, 'Antonio Pelegrin', 'Servicios en Red');
 INSERT INTO profesor (id_profesor, nombre, especialidad) VALUES (4, 'Cayetano Reinaldos Duarte', 'Base de datos');
-INSERT INTO profesor (id_profesor, nombre, especialidad) VALUES (5, 'Samuel Rabadan', 'Seguridad Informática');
-INSERT INTO profesor (id_profesor, nombre, especialidad) VALUES (6, 'Miguel Angel Ibañez', 'Redes');
+INSERT INTO profesor (id_profesor, nombre, especialidad) VALUES (5, 'Samuel Rabadan', 'Seguridad Informatica');
 
 -- Tabla de alumno
 CREATE TABLE alumno (
@@ -46,10 +45,10 @@ CREATE TABLE asignatura (
 );
 
 -- Insertamos las asignatura con IDs explícitos
-INSERT INTO asignatura (id_asignatura, nombre, profesor_id) VALUES (1, 'Redes', 6);
+INSERT INTO asignatura (id_asignatura, nombre, profesor_id) VALUES (1, 'Bases de datos', 4);
 INSERT INTO asignatura (id_asignatura, nombre, profesor_id) VALUES (2, 'Sistemas', 1);
 INSERT INTO asignatura (id_asignatura, nombre, profesor_id) VALUES (3, 'Aplicaciones Web', 2);
-INSERT INTO asignatura (id_asignatura, nombre, profesor_id) VALUES (4, 'Seguridad', 5);
+INSERT INTO asignatura (id_asignatura, nombre, profesor_id) VALUES (4, 'Seguridad Informatica', 5);
 
 -- Tabla de matricula
 CREATE TABLE matricula (
