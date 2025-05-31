@@ -1,9 +1,0 @@
----
-cdb_name: ORCLCDB
-cdb_sid: ORCLCDB
-pdb_name: ORCLPDB1
-oracle_sys_password: "Oracle123"
-oracle_system_password: "Oracle123"
-oracle_dbsnmp_password: "Oracle123"
-
-# vars file for roles/oracle_cdb
