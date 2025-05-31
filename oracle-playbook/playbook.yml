@@ -1,6 +1,6 @@
 ---
-- name: Desplegar Oracle CDB en Oracle Linux 9.5
-  hosts: all
+- name: Desplegar Oracle Database 23c AI en Oracle Linux 9.x
+  hosts: oracle_servers
   become: yes
   vars_files:
     - group_vars/all.yml
