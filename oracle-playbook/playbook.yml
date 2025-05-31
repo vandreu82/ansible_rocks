@@ -1,5 +1,5 @@
 ---
-- name: Desplegar Oracle Database 23c AI en Oracle Linux 9.x
+- name: Desplegar Oracle Database 23c AI con base de datos personalizada
   hosts: oracle_servers
   become: yes
   vars_files:
@@ -7,4 +7,4 @@
   roles:
     - common
     - oracle_install
-    - oracle_cdb
+    - instituto_db

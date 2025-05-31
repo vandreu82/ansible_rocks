@@ -1,29 +1,10 @@
 ---
-- name: Crear directorio ORACLE_HOME
-  ansible.builtin.file:
-    path: "{{ oracle_home }}"
-    state: directory
-    owner: oracle
-    group: oinstall
-    mode: '0755'
+- name: Instalar el paquete RPM de Oracle Database 23ai
+  ansible.builtin.dnf:
+    name: oracle-database-free*
+    state: present
   become: yes
 
-- name: Descomprimir instalador de Oracle 23c AI
-  ansible.builtin.unarchive:
-    src: "/home/oracle/{{ oracle_installer_zip }}"
-    dest: "{{ oracle_home }}"
-    remote_src: yes
+- name: Configurar la base de datos Oracle 23ai
+  ansible.builtin.command: /etc/init.d/oracle-free-23ai configure
   become: yes
-
-- name: Ajustar permisos de /u01
-  ansible.builtin.command: chown -R oracle:oinstall /u01
-  become: yes
-
-- name: Ajustar permisos de ejecución en /u01
-  ansible.builtin.command: chmod -R 755 /u01
-  become: yes
-
-- name: Ejecutar instalador de Oracle 23c AI en modo silent
-  ansible.builtin.command: >
-    {{ oracle_home }}/runInstaller -silent -responseFile {{ oracle_home }}/install/response/db_install.rsp -ignorePrereqFailure
-  become_user: oracle
