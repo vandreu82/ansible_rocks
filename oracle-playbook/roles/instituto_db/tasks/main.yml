@@ -1,10 +1,27 @@
 ---
+- name: Configurar entorno Oracle en .bash_profile de oracle
+  ansible.builtin.blockinfile:
+    path: /home/oracle/.bash_profile
+    block: |
+      export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+      export PATH=$ORACLE_HOME/bin:$PATH
+      export ORACLE_SID=FREE
+      export NLS_LANG=AMERICAN_AMERICA.AL32UTF8
+
 - name: Abrir el puerto 1521 en el firewall permanentemente
   ansible.builtin.firewalld:
     port: 1521/tcp
     permanent: true
     state: enabled
   notify: Reload firewall
+
+- name: Cambiar HOST=localhost a HOST=0.0.0.0 en listener.ora
+  ansible.builtin.replace:
+    path: /opt/oracle/product/23ai/dbhomeFree/network/admin/listener.ora
+    regexp: 'HOST\s*=\s*localhost'
+    replace: 'HOST = 0.0.0.0'
+  become: yes
+  notify: Restart listener
 
 - name: Añadir entrada INSTITUTO en tnsnames.ora
   ansible.builtin.blockinfile:
@@ -22,6 +39,20 @@
     group: oinstall
     mode: '0644'
 
+- name: Crear la PDB INSTITUTO en la CDB FREE
+  ansible.builtin.shell: |
+    export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+    export PATH=$ORACLE_HOME/bin:$PATH
+    export ORACLE_SID=FREE
+    echo "
+    ALTER SESSION SET CONTAINER=CDB$ROOT;
+    ALTER SYSTEM SET db_create_file_dest = '/opt/oracle/oradata/FREE' SCOPE=BOTH;
+    CREATE PLUGGABLE DATABASE INSTITUTO
+      ADMIN USER instituto_admin IDENTIFIED BY Oracle123;
+    ALTER PLUGGABLE DATABASE INSTITUTO OPEN;
+    " | $ORACLE_HOME/bin/sqlplus -s / as sysdba
+  become_user: oracle
+
 - name: Copiar script SQL para crear tablas y registros
   ansible.builtin.template:
     src: instituto_setup.sql.j2
@@ -30,10 +61,27 @@
     group: oinstall
     mode: '0644'
 
+- name: Convertir el archivo .sql a UTF-8
+  ansible.builtin.shell: |
+    iconv -f UTF-8 -t UTF-8 /tmp/instituto_setup.sql -o /tmp/instituto_setup_utf8.sql
+  become_user: oracle
+
+- name: Otorgar privilegios y cuota a instituto_admin para crear tablas
+  ansible.builtin.shell: |
+    export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+    export PATH=$ORACLE_HOME/bin:$PATH
+    export ORACLE_SID=FREE
+    echo "
+    ALTER SESSION SET CONTAINER=INSTITUTO;
+    GRANT CONNECT, RESOURCE TO instituto_admin;
+    ALTER USER instituto_admin QUOTA UNLIMITED ON SYSTEM;
+    " | $ORACLE_HOME/bin/sqlplus -s / as sysdba
+  become_user: oracle
+
 - name: Ejecutar script SQL como instituto_admin para crear tablas y registros
   ansible.builtin.shell: |
     export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
     export PATH=$ORACLE_HOME/bin:$PATH
     export ORACLE_SID=FREE
-    $ORACLE_HOME/bin/sqlplus -s instituto_admin/Oracle123@//192.168.1.201:1521/instituto @/tmp/instituto_setup.sql
+    $ORACLE_HOME/bin/sqlplus -s instituto_admin/Oracle123@//localhost:1521/instituto @/tmp/instituto_setup.sql
   become_user: oracle
