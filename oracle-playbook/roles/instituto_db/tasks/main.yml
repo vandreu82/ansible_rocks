@@ -68,5 +68,5 @@
     export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
     export PATH=$ORACLE_HOME/bin:$PATH
     export ORACLE_SID=FREE
-    $ORACLE_HOME/bin/sqlplus -s instituto_admin/Oracle123@//192.168.1.201:1521/instituto @/tmp/instituto_setup.sql
+    $ORACLE_HOME/bin/sqlplus -s instituto_admin/Oracle123@//localhost:1521/instituto @/tmp/instituto_setup.sql
   become_user: oracle
