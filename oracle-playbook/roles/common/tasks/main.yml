@@ -2,7 +2,7 @@
 - name: Instalar paquetes necesarios para Oracle 23c AI
   ansible.builtin.yum:
     name:
-      - oracle-database-preinstall-23c
+      - oracle-database-preinstall-23ai
       - unzip
     state: present
 
