@@ -10,7 +10,7 @@
     CREATE PLUGGABLE DATABASE INSTITUTO
       ADMIN USER instituto_admin IDENTIFIED BY Oracle123;
     ALTER PLUGGABLE DATABASE INSTITUTO OPEN;
-    " | $ORACLE_HOME/bin/sqlplus -s sys/Oracle123@FREE as sysdba
+    " | $ORACLE_HOME/bin/sqlplus -s / as sysdba
   become_user: oracle
 
 - name: Crear tabla y registros en la PDB INSTITUTO
@@ -34,5 +34,5 @@
     INSERT INTO profesores (nombre, especialidad) VALUES ('Miguel Angel Ibañez', 'Redes');
 
     COMMIT;
-    " | $ORACLE_HOME/bin/sqlplus -s sys/Oracle123@FREE as sysdba
+    " | $ORACLE_HOME/bin/sqlplus -s / as sysdba
   become_user: oracle
