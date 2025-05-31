@@ -1,7 +1,7 @@
 ---
 - name: Crear la base de datos CDB
   ansible.builtin.command: >
-    /u01/app/oracle/product/19c/dbhome_1/bin/dbca -silent
+    /u01/app/bin/dbca -silent
     -createDatabase
     -templateName General_Purpose.dbc
     -gdbName {{ cdb_name }}

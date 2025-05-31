@@ -4,6 +4,11 @@
     name: "{{ common_packages }}"
     state: present
 
+- name: Instalar preinstalación de Oracle
+  ansible.builtin.yum:
+    name: oracle-database-preinstall-19c
+    state: present
+
 - name: Configurar parametros de kernel
   ansible.builtin.sysctl:
     name: "{{ item.key }}"

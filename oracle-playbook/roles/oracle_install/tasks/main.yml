@@ -1,22 +1,36 @@
 ---
-- name: Copiar instaladores de Oracle
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: /tmp/
-  loop: "{{ oracle_installers }}"
+- name: Crear /u01/app/ si no existe
+  ansible.builtin.file:
+    path: /u01/app/oracle/product/19c/dbhome_1
+    state: directory
+    owner: oracle
+    group: oinstall
+    mode: '0755'
+
+- name: Descomprimir instalador de Oracle en el host remoto
+  ansible.builtin.unarchive:
+    src: "/tmp/LINUX.X64_193000_db_home.zip"
+    dest: "/u01/app/oracle/product/19c/dbhome_1/"
+    remote_src: yes
 
 - name: Descomprimir instaladores
   ansible.builtin.unarchive:
     src: "/tmp/{{ item }}"
-    dest: /u01/app/
+    dest: /u01/app/oracle/product/19c/dbhome_1/
     remote_src: yes
   loop: "{{ oracle_installers }}"
 
-- name: Ejecutar instalador en modo silent
+- name: Dar permisos completos de /u01 a oracle
+  ansible.builtin.command: chown -R oracle:oinstall /u01
+  become: yes
+
+- name: Asegurar permisos de ejecución en /u01
+  ansible.builtin.command: chmod -R 755 /u01
+  become: yes
+
+- name: Ejecutar runInstaller en modo silent
   ansible.builtin.command: >
-    /u01/app/database/runInstaller -silent -responseFile /tmp/db_install.rsp
+    /u01/app/oracle/product/19c/dbhome_1/runInstaller -silent -ignorePrereqFailure -responseFile /u01/app/oracle/product/19c/dbhome_1/install/response/db_install.rsp
   become_user: oracle
-  args:
-    creates: /u01/app/oracle/product/19c/dbhome_1/bin/sqlplus
 
 # tasks file for roles/oracle_install
