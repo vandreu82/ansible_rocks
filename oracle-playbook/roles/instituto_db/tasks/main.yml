@@ -61,6 +61,11 @@
     group: oinstall
     mode: '0644'
 
+- name: Convertir el archivo .sql a UTF-8
+  ansible.builtin.shell: |
+    iconv -f UTF-8 -t UTF-8 /tmp/instituto_setup.sql -o /tmp/instituto_setup_utf8.sql
+  become_user: oracle
+
 - name: Otorgar privilegios y cuota a instituto_admin para crear tablas
   ansible.builtin.shell: |
     export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
