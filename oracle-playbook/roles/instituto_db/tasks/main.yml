@@ -22,6 +22,20 @@
     group: oinstall
     mode: '0644'
 
+- name: Crear la PDB INSTITUTO en la CDB FREE
+  ansible.builtin.shell: |
+    export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
+    export PATH=$ORACLE_HOME/bin:$PATH
+    export ORACLE_SID=FREE
+    echo "
+    ALTER SESSION SET CONTAINER=CDB$ROOT;
+    ALTER SYSTEM SET db_create_file_dest = '/opt/oracle/oradata/FREE' SCOPE=BOTH;
+    CREATE PLUGGABLE DATABASE INSTITUTO
+      ADMIN USER instituto_admin IDENTIFIED BY Oracle123;
+    ALTER PLUGGABLE DATABASE INSTITUTO OPEN;
+    " | $ORACLE_HOME/bin/sqlplus -s / as sysdba
+  become_user: oracle
+
 - name: Copiar script SQL para crear tablas y registros
   ansible.builtin.template:
     src: instituto_setup.sql.j2
