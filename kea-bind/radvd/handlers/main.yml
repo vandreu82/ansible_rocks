@@ -1,0 +1,7 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for radvd
+- name: Reiniciar radvd
+  systemd:
+    name: radvd
+    state: restarted

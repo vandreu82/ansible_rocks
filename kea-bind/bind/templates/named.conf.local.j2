@@ -2,3 +2,8 @@ zone "10.10.172.in-addr.arpa" {
     type master;
     file "/etc/bind/db.172.10.10";
 };
+
+zone "{{ domain }}" {
+    type master;
+    file "/etc/bind/db.{{ domain }}";
+};

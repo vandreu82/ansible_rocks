@@ -1,0 +1,23 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for radvd
+- name: Instalar radvd
+  apt:
+    name: radvd
+    state: present
+    update_cache: yes
+
+- name: Copiar configuración de radvd
+  template:
+    src: radvd.conf.j2
+    dest: /etc/radvd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reiniciar radvd
+
+- name: Habilitar y arrancar radvd
+  systemd:
+    name: radvd
+    enabled: yes
+    state: started
