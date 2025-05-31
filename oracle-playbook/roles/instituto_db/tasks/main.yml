@@ -52,7 +52,7 @@
     group: oinstall
     mode: '0644'
 
-- name: Otorgar privilegios a instituto_admin para crear tablas
+- name: Otorgar privilegios y cuota a instituto_admin para crear tablas
   ansible.builtin.shell: |
     export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
     export PATH=$ORACLE_HOME/bin:$PATH
@@ -60,6 +60,7 @@
     echo "
     ALTER SESSION SET CONTAINER=INSTITUTO;
     GRANT CONNECT, RESOURCE TO instituto_admin;
+    ALTER USER instituto_admin QUOTA UNLIMITED ON SYSTEM;
     " | $ORACLE_HOME/bin/sqlplus -s / as sysdba
   become_user: oracle
 
