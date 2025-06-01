@@ -8,6 +8,10 @@
       - mariadb-server
       - wget
       - unzip
+      - python3-pymysql
+      - python3-pip
+      - python3-requests
+      - python3-urllib3
     state: present
     update_cache: yes
   become: yes
@@ -21,6 +25,17 @@
     - apache2
     - mariadb
   become: yes
+
+- name: Asegurar que root puede autenticarse con contraseña en MariaDB
+  ansible.builtin.shell: |
+    mysql -u root <<EOF
+    ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';
+    FLUSH PRIVILEGES;
+    EOF
+  args:
+    executable: /bin/bash
+  become: yes
+
 
 - name: Asegurar que la base de datos de WordPress existe
   community.mysql.mysql_db:
@@ -41,10 +56,11 @@
     login_password: "{{ mysql_root_password }}"
   become: yes
 
-- name: Descargar WordPress
-  ansible.builtin.get_url:
-    url: https://wordpress.org/latest.tar.gz
-    dest: /tmp/wordpress.tar.gz
+- name: Descargar WordPress manualmente usando wget
+  ansible.builtin.shell: wget -O /tmp/wordpress.tar.gz https://wordpress.org/latest.tar.gz
+  args:
+    creates: /tmp/wordpress.tar.gz
+  become: yes
 
 - name: Descomprimir WordPress
   ansible.builtin.unarchive:
@@ -58,6 +74,31 @@
     src: wp-config.php.j2
     dest: /var/www/html/wordpress/wp-config.php
   become: yes
+
+- name: Descargar wp-cli.phar
+  command: wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
+
+- name: Dar permisos de ejecución a wp-cli
+  file:
+    path: /usr/local/bin/wp
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Instalar WordPress automáticamente con wp-cli como root
+  tags: wp-cli
+  command: >
+    wp core install
+    --url="http://{{ ansible_host }}/wordpress"
+    --title="AnsibleRocks"
+    --admin_user="{{ wp_admin_user }}"
+    --admin_password="{{ wp_admin_password }}"
+    --admin_email="{{ wp_admin_email }}"
+    --path=/var/www/html/wordpress
+    --allow-root
+  become: yes
+  args:
+    chdir: /var/www/html/wordpress
 
 - name: Ajustar permisos en /var/www/html
   ansible.builtin.file:

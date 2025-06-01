@@ -1,0 +1,2 @@
+[wordpress_servers]
+wp1 ansible_host=192.168.1.202 ansible_user=root ansible_ssh_pass=asdf
