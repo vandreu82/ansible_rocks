@@ -8,14 +8,8 @@
     wan_iface: ens18
 
   roles:
+    - network-setup
     - kea
     - bind
     - router
     - radvd
-
-  handlers:
-    - name: Reiniciar BIND
-      systemd:
-        name: bind9
-        state: restarted
-        enabled: true

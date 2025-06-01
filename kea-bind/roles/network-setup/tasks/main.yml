@@ -1,0 +1,19 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for network-setup
+- name: Instalar Netplan (por si no está)
+  apt:
+    name: netplan.io
+    state: present
+    update_cache: yes
+
+- name: Copiar archivo de configuración de Netplan
+  template:
+    src: 01-netcfg.yaml.j2
+    dest: /etc/netplan/01-netcfg.yaml
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Aplicar configuración de red con Netplan
+  command: netplan apply
