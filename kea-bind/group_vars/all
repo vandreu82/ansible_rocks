@@ -1,0 +1,5 @@
+ansible_user: root
+server_ip: "172.10.10.254"
+domain: ansiblerocks.lan
+lan_iface: ens19
+wan_iface: ens18

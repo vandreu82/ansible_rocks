@@ -1,13 +1,17 @@
 {
   "Dhcp6": {
     "interfaces-config": {
-      "interfaces": [ "{{ lan_iface }}" ]
+      "interfaces": [
+        "{{ lan_iface }}"
+      ]
     },
     "subnet6": [
       {
         "subnet": "2001:db8:0:1::/64",
         "pools": [
-          { "pool": "2001:db8:0:1::10 - 2001:db8:0:1::100" }
+          {
+            "pool": "2001:db8:0:1::10 - 2001:db8:0:1::100"
+          }
         ],
         "interface": "{{ lan_iface }}",
         "option-data": [
@@ -23,16 +27,15 @@
       "persist": true
     },
     "loggers": [
-    {
+      {
         "name": "kea-dhcp6",
         "output_options": [
-        {
-            "output": "stdout"
-        }
+          {
+            "output": "/var/log/kea-dhcp6.log"
+          }
         ],
-        "severity": "DEBUG",
-        "debuglevel": 99
-    }
+        "severity": "INFO"
+      }
     ]
   }
 }
