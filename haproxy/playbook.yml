@@ -1,0 +1,6 @@
+---
+- name: Configurar HAProxy como balanceador para WordPress
+  hosts: asoka
+  become: yes
+  roles:
+    - haproxy
