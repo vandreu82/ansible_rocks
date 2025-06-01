@@ -15,9 +15,3 @@
     group: root
     mode: '0644'
   notify: Reiniciar radvd
-
-- name: Habilitar y arrancar radvd
-  systemd:
-    name: radvd
-    enabled: yes
-    state: started

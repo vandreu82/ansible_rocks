@@ -1,12 +1,6 @@
 - name: Instalar y configurar DHCP (Kea) y DNS (BIND)
   hosts: all
   become: true
-  vars:
-    server_ip: "172.10.10.254"
-    domain: ansiblerocks.lan
-    lan_iface: ens19
-    wan_iface: ens18
-
   roles:
     - network-setup
     - kea
