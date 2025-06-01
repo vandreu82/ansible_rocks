@@ -1,0 +1,15 @@
+---
+- name: Seleccionar la página de bienvenida según el hostname
+  set_fact:
+    landing_page_file: "{{ 'AnsibleRocks1.html' if inventory_hostname == 'wp1' else 'AnsibleRocks2.html' }}"
+  become: yes
+
+- name: Copiar página HTML personalizada
+  ansible.builtin.copy:
+    src: "{{ landing_page_file }}"
+    dest: /var/www/html/wordpress/index.html
+    owner: www-data
+    group: www-data
+    mode: '0644'
+  become: yes
+# tasks file for balanceo

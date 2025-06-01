@@ -1,0 +1,8 @@
+---
+- name: Desplegar WordPress en dos máquinas con páginas personalizadas
+  hosts: wordpress_servers
+  become: yes
+
+  roles:
+    - wordpress
+    - balanceo
