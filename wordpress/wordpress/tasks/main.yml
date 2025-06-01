@@ -36,7 +36,6 @@
     executable: /bin/bash
   become: yes
 
-
 - name: Asegurar que la base de datos de WordPress existe
   community.mysql.mysql_db:
     name: "{{ wp_db_name }}"
@@ -85,12 +84,16 @@
     owner: root
     group: root
 
+- name: Establecer el título de la portada de WordPress según el servidor
+  ansible.builtin.set_fact:
+    wp_title: "{{ 'AnsibleRocks1' if inventory_hostname == 'wp1' else 'AnsibleRocks2' }}"
+
 - name: Instalar WordPress automáticamente con wp-cli como root
   tags: wp-cli
   command: >
     wp core install
-    --url="http://{{ ansible_host }}/wordpress"
-    --title="AnsibleRocks"
+    --url="http://{{ ansible_host }}/"
+    --title="{{ wp_title }}"
     --admin_user="{{ wp_admin_user }}"
     --admin_password="{{ wp_admin_password }}"
     --admin_email="{{ wp_admin_email }}"
@@ -108,4 +111,16 @@
     owner: www-data
     group: www-data
   become: yes
-# tasks file for wordpress
+
+- name: Establecer DocumentRoot de Apache a /var/www/html/wordpress
+  ansible.builtin.lineinfile:
+    path: /etc/apache2/sites-available/000-default.conf
+    regexp: '^\s*DocumentRoot'
+    line: '    DocumentRoot /var/www/html/wordpress'
+  become: yes
+
+- name: Reiniciar Apache para aplicar cambios
+  ansible.builtin.service:
+    name: apache2
+    state: restarted
+  become: yes
