@@ -1,6 +1,5 @@
-# roles/proxmox_create_vm/tasks/main.yml
-
-- name: Buscar XMLs en subdirectorios tipo 1**
+---
+- name: Buscar XMLs en subdirectorios de imágenes
   find:
     paths: "{{ rsync_path }}"
     patterns: "*.xml"
@@ -11,12 +10,9 @@
   debug:
     var: found_xmls.files
 
-- name: Filtrar solo los XML dentro de subdirectorios tipo 1**
+- name: Filtrar XMLs válidos
   set_fact:
-    filtered_xmls: >-
-      {{ found_xmls.files |
-         selectattr('path', 'search', '/1\\d{2}/') |
-         list }}
+    filtered_xmls: "{{ found_xmls.files }}"
 
 - name: DEBUG - XMLs filtrados
   debug:
@@ -25,11 +21,12 @@
 - name: DEBUG - Paths de XML encontrados
   debug:
     msg: "{{ item.path }}"
-  loop: "{{ found_xmls.files }}"
-
+  loop: "{{ filtered_xmls }}"
 
 - name: Incluir tareas para crear cada VM desde su XML
   include_tasks: process_xml_vm.yml
   loop: "{{ filtered_xmls }}"
   loop_control:
     loop_var: xml_file
+  vars:
+    xml_file: "{{ xml_file.path }}"

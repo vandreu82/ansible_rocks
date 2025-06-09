@@ -15,3 +15,8 @@ rsync_path: /var/lib/vz/images
 # Usuario SSH para rsync
 rsync_user: root
 
+proxmox_user: "root@pam"
+proxmox_token_id: "mitoken"
+proxmox_token_secret: "0a622116-c2a1-4d56-ae93-960b6c2f668f"
+proxmox_host: "192.168.1.254"
+

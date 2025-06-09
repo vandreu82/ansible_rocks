@@ -1,0 +1,146 @@
+---
+- name: Cargar XML como string
+  slurp:
+    src: "{{ xml_file.path }}"
+  register: vm_xml
+
+- name: Convertir XML a texto
+  set_fact:
+    xml_content: "{{ vm_xml.content | b64decode }}"
+
+- name: DEBUG - Contenido XML
+  debug:
+    msg: "{{ xml_content }}"
+
+# --- Validar y extraer RAM ---
+- name: Extraer memoria de la VM
+  set_fact:
+    vm_ram_matches: "{{ xml_content | regex_findall('<memory[^>]*?>(.*?)</memory>') }}"
+
+- name: Verificar que la etiqueta <memory> existe
+  fail:
+    msg: "El archivo XML {{ xml_file.path }} no contiene la etiqueta <memory>."
+  when: vm_ram_matches | length == 0
+
+- name: Definir memoria en MB
+  set_fact:
+    vm_ram: "{{ (vm_ram_matches[0] | trim | int) // 1024 }}"
+
+- name: DEBUG - RAM detectada en MB
+  debug:
+    var: vm_ram
+
+# --- Validar y extraer nombre de la VM ---
+- name: Extraer nombre de la VM
+  set_fact:
+    vm_name_matches: "{{ xml_content | regex_findall('<name.*?>(.*?)</name>') }}"
+
+- name: Verificar que la etiqueta <name> existe
+  fail:
+    msg: "El archivo XML {{ xml_file.path }} no contiene la etiqueta <name>."
+  when: vm_name_matches | length == 0
+
+- name: Definir nombre de la VM
+  set_fact:
+    vm_name: "{{ vm_name_matches[0] | trim }}"
+
+- name: DEBUG - Nombre de la VM detectado
+  debug:
+    var: vm_name
+
+# --- Validar y extraer cores ---
+- name: Extraer cores de la VM
+  set_fact:
+    vm_cores_matches: "{{ xml_content | regex_findall('<vcpu[^>]*?>(.*?)</vcpu>') }}"
+
+- name: Verificar que la etiqueta <vcpu> existe
+  fail:
+    msg: "El archivo XML {{ xml_file.path }} no contiene la etiqueta <vcpu>."
+  when: vm_cores_matches | length == 0
+
+- name: Definir número de cores
+  set_fact:
+    vm_cores: "{{ vm_cores_matches[0] | trim | int }}"
+
+- name: DEBUG - Núcleos detectados
+  debug:
+    var: vm_cores
+
+# --- Detectar si hay interfaz de red ---
+- name: Detectar interfaz de red
+  set_fact:
+    vm_has_network: "{{ xml_content is search('<interface type=.network.') }}"
+
+- name: DEBUG - Hay interfaz de red
+  debug:
+    var: vm_has_network
+
+# --- Localizar el disco qcow2 ---
+- name: Buscar disco asociado a la VM
+  find:
+    paths: "{{ xml_file.path | dirname }}"
+    patterns: "*.qcow2"
+    recurse: no
+  register: found_disks
+
+- name: Verificar que el disco existe
+  fail:
+    msg: "No se encontró un archivo de disco .qcow2 en {{ xml_file.path | dirname }} para la VM {{ vm_name }}."
+  when: found_disks.files | length == 0
+
+- name: Seleccionar el disco principal
+  set_fact:
+    disk_file: "{{ found_disks.files[0].path }}"
+
+# --- Crear la VM base ---
+- name: Crear VM base en Proxmox
+  community.general.proxmox_kvm:
+    api_user: "{{ proxmox_user }}"
+    api_token_id: "{{ proxmox_token_id }}"
+    api_token_secret: "{{ proxmox_token_secret }}"
+    api_host: "{{ proxmox_host }}"
+    node: "pxmx"  
+    vmid: "{{ xml_file.path.split('/')[-2] }}"
+    name: "{{ vm_name }}"
+    memory: "{{ vm_ram }}"
+    cores: "{{ vm_cores }}"
+    ostype: l26
+    scsihw: virtio-scsi-pci
+    net: "{{ {'net0': 'virtio,bridge=vmbr0'} if vm_has_network else {} }}"
+    state: present
+  delegate_to: localhost
+  become: false
+
+# --- Importar el disco qcow2 ---
+- name: Importar disco QCOW2 a la VM
+  ansible.builtin.command: >
+    qm importdisk {{ xml_file.path.split('/')[-2] }}
+    {{ disk_file }}
+    local-lvm
+  delegate_to: 192.168.1.254
+
+# --- Adjuntar el disco importado ---
+- name: Adjuntar disco al hardware de la VM
+  ansible.builtin.command: >
+    qm set {{ xml_file.path.split('/')[-2] }} --scsi0 local-lvm:vm-{{ xml_file.path.split('/')[-2] }}-disk-0
+  delegate_to: 192.168.1.254
+
+# --- Configurar el disco como bootdisk ---
+- name: Configurar disco de arranque
+  ansible.builtin.command: >
+    qm set {{ xml_file.path.split('/')[-2] }} --boot order=scsi0
+  delegate_to: 192.168.1.254
+
+
+
+
+
+
+
+
+
+
+
+
+
+
