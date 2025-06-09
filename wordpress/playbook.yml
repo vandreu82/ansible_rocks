@@ -4,4 +4,6 @@
   become: yes
 
   roles:
+    - wp_db
     - wordpress
+    
