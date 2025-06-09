@@ -1,0 +1,50 @@
+- name: Obtener rutas de disco desde los XMLs usando grep
+  shell: >
+    grep -oE "<source file='[^']+'" /tmp/{{ item }}.xml | cut -d"'" -f2
+  register: vm_disk_paths
+  loop: "{{ vm_names }}"
+  loop_control:
+    label: "{{ item }}"
+  changed_when: false
+
+- name: Crear estructura de datos con rutas de discos por VM
+  set_fact:
+    vms_disks: "{{ vms_disks | default({}) | combine({ item.item: item.stdout_lines }) }}"
+  loop: "{{ vm_disk_paths.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Obtener lista de VMID existentes en Proxmox
+  shell: "ls /etc/pve/qemu-server | grep -oE '^[0-9]+'"
+  register: existing_vmids_raw
+  delegate_to: "{{ proxmox_host_ip }}"
+  changed_when: false
+
+- name: Convertir lista de VMIDs existentes a enteros
+  set_fact:
+    existing_vmids: "{{ existing_vmids_raw.stdout_lines | map('int') | list }}"
+
+- name: Generar VMIDs libres desde 150
+  set_fact:
+    vm_ids: >-
+      {{
+        dict(vm_names | zip(
+          range(150, 150 + vm_names | length)
+            | reject('in', existing_vmids)
+            | list
+        ))
+      }}
+
+- name: Rsync de discos al host Proxmox por VM
+  synchronize:
+    src: "{{ item.1 }}"
+    dest: "{{ rsync_user }}@{{ proxmox_host_ip }}:{{ rsync_path }}/{{ vm_ids[item.0.key] }}/"
+    mode: push
+    rsync_opts:
+      - "--progress"
+      - "--partial"
+  loop: "{{ vms_disks | dict2items | subelements('value') }}"
+  loop_control:
+    label: "{{ item.0.key }} -> {{ item.1 }}"
+  delegate_to: "{{ kvm_host_ip }}"
+

@@ -1,0 +1,17 @@
+---
+# IPs de los hosts (usados para conexión vía VPN WireGuard)
+kvm_host_ip: 192.168.1.142
+proxmox_host_ip: 192.168.1.254
+
+# Configuración de red en Proxmox
+vm_network_bridge: vmbr0
+
+# VMID mínimo para nuevas VMs en Proxmox
+vmid_start: 150
+
+# Ruta de destino de los discos en Proxmox
+rsync_path: /var/lib/vz/images
+
+# Usuario SSH para rsync
+rsync_user: root
+

@@ -1,0 +1,26 @@
+#SPDX-License-Identifier: MIT-0
+# tasks file for gather_vm_info
+---
+- name: Obtener lista de VMs
+  command: virsh list --all --name
+  register: vm_list_raw
+
+- name: Filtrar nombres válidos de VMs
+  set_fact:
+    vm_names: "{{ vm_list_raw.stdout_lines | reject('equalto', '') | list }}"
+
+- name: Obtener configuración XML de cada VM
+  shell: virsh dumpxml {{ item }}
+  register: vm_xmls
+  loop: "{{ vm_names }}"
+  loop_control:
+    label: "{{ item }}"
+  changed_when: false
+
+- name: Guardar XMLs en archivos temporales
+  copy:
+    content: "{{ item.stdout }}"
+    dest: "/tmp/{{ item.item }}.xml"
+  loop: "{{ vm_xmls.results }}"
+  loop_control:
+    label: "{{ item.item }}"

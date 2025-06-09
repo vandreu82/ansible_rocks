@@ -1,0 +1,28 @@
+---
+- name: Fase 1 - Recolectar información de VMs
+  tags: gather
+  hosts: kvm_host
+  become: true
+  roles:
+    - gather_vm_info
+
+- name: Fase 2 - Transferir discos
+  tags: transfer
+  hosts: kvm_host
+  become: true
+  roles:
+    - transfer_disks
+
+- name: Fase 3 - Crear VMs
+  tags: create
+  hosts: proxmox_host
+  become: true
+  roles:
+    - proxmox_create_vm
+
+- name: Fase 4 - Validar arranque
+  tags: check
+  hosts: proxmox_host
+  become: true
+  roles:
+    - validate_boot
