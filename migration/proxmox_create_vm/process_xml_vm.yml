@@ -1,0 +1,55 @@
+- name: Cargar XML como string
+  slurp:
+    src: "{{ xml_path }}"
+  register: xml_raw
+
+- name: Decodificar XML
+  set_fact:
+    xml_decoded: "{{ xml_raw.content | b64decode }}"
+
+- name: Extraer parámetros básicos del XML
+  set_fact:
+    vm_name: "{{ xml_path | basename | regex_replace('\\.xml$', '') }}"
+    vmid: "{{ vmid | int }}"
+    memory_match: "{{ xml_decoded | regex_search('<memory[^>]*>(\\d+)</memory>', '\\1') | default('') }}"
+    vcpu_match: "{{ xml_decoded | regex_search('<vcpu[^>]*>(\\d+)</vcpu>', '\\1') | default('') }}"
+    disk_match: >-
+      {{
+        (xml_decoded
+        | regex_search("<source file='([^']+\\.qcow2)'", '\\1'))
+        | default('') 
+      }}
+
+- name: Definir configuración de la VM
+  set_fact:
+    vm_config:
+      name: "{{ vm_name }}"
+      vmid: "{{ vmid }}"
+      memory: "{{ (memory_match | int(default=1048576)) // 1024 }}"
+      vcpus: "{{ vcpu_match | int(default=1) }}"
+      disk: "{{ disk_match | regex_replace('^.*/', '') | default('disk.qcow2') }}"
+      disk_path: "{{ disk_match }}"
+
+- name: Crear máquina virtual con qm create
+  command: >
+    qm create {{ vm_config.vmid }}
+    --name {{ vm_config.name }}
+    --memory {{ vm_config.memory }}
+    --cores {{ vm_config.vcpus }}
+    --net0 virtio,bridge=vmbr0
+    --scsihw virtio-scsi-pci
+    --boot order=scsi0
+  args:
+    creates: "/etc/pve/qemu-server/{{ vm_config.vmid }}.conf"
+
+- name: Importar disco a local-lvm
+  command: >
+    qm importdisk {{ vm_config.vmid }} /var/lib/vz/images/{{ vm_config.vmid }}/{{ vm_config.disk }} local-lvm
+
+- name: Asignar disco a la VM
+  command: >
+    qm set {{ vm_config.vmid }}
+    --scsi0 local-lvm:vm-{{ vm_config.vmid }}-disk-0
+
+- name: Encender VM
+  command: qm start {{ vm_config.vmid }}

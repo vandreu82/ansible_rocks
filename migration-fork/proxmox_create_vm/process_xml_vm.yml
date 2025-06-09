@@ -1,0 +1,38 @@
+- name: Cargar definición de la VM desde YAML
+  include_vars:
+    file: "{{ vm_file.path }}"
+    name: vm_def
+
+- name: Definir configuración de la VM
+  set_fact:
+    vm_config:
+      name: "{{ vm_def.name | default(vm_file.path | basename | splitext | first) }}"
+      vmid: "{{ vmid | int }}"
+      memory: "{{ (vm_def.memory | int) // 1024 }}"
+      vcpus: "{{ vm_def.vcpu }}"
+      disk: "{{ (vm_def.disks[0].source | default('disk.qcow2')) | basename }}"
+      disk_path: "{{ vm_def.disks[0].source | default('') }}"
+
+- name: Crear máquina virtual con qm create
+  command: >
+    qm create {{ vm_config.vmid }}
+    --name {{ vm_config.name }}
+    --memory {{ vm_config.memory }}
+    --cores {{ vm_config.vcpus }}
+    --net0 virtio,bridge=vmbr0
+    --scsihw virtio-scsi-pci
+    --boot order=scsi0
+  args:
+    creates: "/etc/pve/qemu-server/{{ vm_config.vmid }}.conf"
+
+- name: Importar disco a local-lvm
+  command: >
+    qm importdisk {{ vm_config.vmid }} {{ vm_config.disk_path }} local-lvm
+
+- name: Asignar disco a la VM
+  command: >
+    qm set {{ vm_config.vmid }}
+    --scsi0 local-lvm:vm-{{ vm_config.vmid }}-disk-0
+
+- name: Encender VM
+  command: qm start {{ vm_config.vmid }}

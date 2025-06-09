@@ -1,0 +1,11 @@
+- name: Test virt_info
+  hosts: kvm_host
+  gather_facts: false
+  tasks:
+    - name: Obtener info de libvirt
+      community.libvirt.virt_info:
+      register: vm_info
+
+    - name: Mostrar resultado
+      debug:
+        var: vm_info

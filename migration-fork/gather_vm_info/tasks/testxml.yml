@@ -1,0 +1,15 @@
+- name: Test XPath con módulo XML
+  hosts: kvm_host
+  gather_facts: false
+
+  tasks:
+    - name: Leer atributo 'bus' del primer disco
+      community.general.xml:
+        path: "/tmp/vm/debian12.xml"
+        xpath: "/domain/devices/disk[@device='disk']/target/@bus"
+        content: attribute
+      register: disk_bus
+
+    - name: Mostrar resultado
+      debug:
+        var: disk_bus

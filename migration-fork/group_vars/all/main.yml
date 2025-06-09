@@ -1,0 +1,4 @@
+vm_info_output_dir: /tmp/vm
+proxmox_image_path: /var/lib/vz/images
+starting_vmid: 150
+proxmox_host: 192.168.1.254

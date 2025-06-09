@@ -1,0 +1,17 @@
+- name: Buscar XMLs en {{ rsync_path }}
+  ansible.builtin.find:
+    paths: "{{ rsync_path }}"
+    patterns: "*.xml"
+    file_type: file
+  register: xml_files
+
+- name: Extraer nombres de VM (sin .xml)
+  ansible.builtin.set_fact:
+    vm_names: >-
+      {{ xml_files.files | map(attribute='path') | map('basename') | map('splitext') | map('first') | list }}
+
+- name: Incluir tareas para cada VM
+  include_tasks: process_vm.yml
+  loop: "{{ vm_names }}"
+  loop_control:
+    loop_var: item

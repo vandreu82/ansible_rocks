@@ -1,0 +1,13 @@
+# transfer_disks/tasks/main.yml
+
+- name: Tareas en el host KVM
+  when: inventory_hostname in groups['kvm_host']
+  block:
+    - name: Incluir tareas del KVM
+      include_tasks: kvm_tasks.yml
+
+- name: Tareas en el host Proxmox
+  when: inventory_hostname in groups['proxmox_host']
+  block:
+    - name: Incluir tareas de Proxmox
+      include_tasks: proxmox_tasks.yml

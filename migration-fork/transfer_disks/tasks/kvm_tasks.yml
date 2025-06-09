@@ -1,0 +1,70 @@
+# transfer_disks/tasks/kvm_tasks.yml
+
+- name: Buscar archivos YAML generados
+  find:
+    paths: /tmp/vm
+    patterns: "*.yml"
+    use_regex: false
+  register: yaml_files
+
+- name: Cargar contenido YAML de cada VM
+  ansible.builtin.slurp:
+    src: "{{ item.path }}"
+  loop: "{{ yaml_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+  register: slurped_yamls
+
+- name: Convertir contenido YAML y asociar con nombre de VM
+  set_fact:
+    vm_info_dict: >-
+      {{ vm_info_dict | default({}) | combine({
+        (item.item.path | basename | regex_replace('\.yml$', '')): {
+          'raw': item.content | b64decode | from_yaml
+        }
+      }) }}
+  loop: "{{ slurped_yamls.results }}"
+
+- name: Obtener lista de nombres de VM
+  set_fact:
+    parsed_vms: >-
+      {{
+        vm_info_dict | dict2items(key_name='name', value_name='data')
+      }}
+
+- name: Obtener lista de VMID existentes en Proxmox
+  shell: "ls /etc/pve/qemu-server | grep -oE '^[0-9]+'"
+  register: existing_vmids_raw
+  delegate_to: "{{ proxmox_host }}"
+  changed_when: false
+
+- name: Convertir lista de VMIDs existentes a enteros
+  set_fact:
+    existing_vmids: "{{ existing_vmids_raw.stdout_lines | map('int') | list }}"
+
+- name: Generar lista de VMIDs disponibles desde 150
+  set_fact:
+    available_vmids: "{{ range(150, 300) | reject('in', existing_vmids) | list }}"
+
+- name: Asignar VMIDs a las VMs
+  set_fact:
+    vmid_map: "{{ dict(parsed_vms | map(attribute='name') | zip(available_vmids | list)) }}"
+
+- name: Preparar lista de elementos para transferir
+  set_fact:
+    transfer_list: >-
+      {{
+        transfer_list | default([]) + [{
+          'vmid': vmid_map[item.name],
+          'vmname': item.name,
+          'yaml': rsync_path + '/' + item.name + '.yml',
+          'disks': (
+            item.data.raw.domain.devices.disk
+            | selectattr('@device', 'equalto', 'disk')
+            | map(attribute='source.@file') | list
+          )
+        }]
+      }}
+  loop: "{{ parsed_vms }}"
+  loop_control:
+    loop_var: item

@@ -1,0 +1,20 @@
+- name: Recolectar información de las VMs en el host KVM
+  tags: gather
+  hosts: kvm_host
+  gather_facts: false
+  roles:
+    - gather_vm_info
+
+- name: Transferir discos y definición a Proxmox
+  tags: transfer
+  hosts: kvm_host
+  gather_facts: false
+  roles:
+    - transfer_disks
+
+- name: Crear VMs en el host Proxmox
+  tags: create
+  hosts: proxmox_host
+  gather_facts: false
+  roles:
+    - proxmox_create_vm

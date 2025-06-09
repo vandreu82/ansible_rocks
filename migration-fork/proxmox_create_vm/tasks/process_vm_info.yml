@@ -1,0 +1,28 @@
+- name: Cargar definición YAML de la VM
+  include_vars:
+    file: "{{ vm_dir.path }}/{{ vm_dir.path | basename }}.yml"
+    name: vm_def
+
+- name: Crear la máquina virtual en Proxmox
+  command: >
+    qm create {{ vm_dir.path | basename }}
+    --name {{ vm_def.name }}
+    --memory {{ (vm_def.memory | int) // 1024 }}
+    --cores {{ vm_def.vcpu }}
+    --net0 {{ vm_def.interface_model }},bridge=vmbr0
+  args:
+    creates: "/etc/pve/qemu-server/{{ vm_dir.path | basename }}.conf"
+
+- name: Importar disco a local-lvm
+  command: >
+    qm importdisk {{ vm_dir.path | basename }}
+    {{ proxmox_image_path }}/{{ vm_dir.path | basename }}/{{ vm_def.name }}.qcow2
+    local-lvm
+
+- name: Asignar disco importado a la VM
+  command: >
+    qm set {{ vm_dir.path | basename }}
+    --{{ vm_def.disk_bus }}0 local-lvm:vm-{{ vm_dir.path | basename }}-disk-0
+
+- name: Encender VM
+  command: qm start {{ vm_dir.path | basename }}

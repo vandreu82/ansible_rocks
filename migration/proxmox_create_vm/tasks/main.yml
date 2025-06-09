@@ -1,3 +1,35 @@
-#SPDX-License-Identifier: MIT-0
----
-# tasks file for proxmox_create_vm
+# roles/proxmox_create_vm/tasks/main.yml
+
+- name: Buscar XMLs en subdirectorios tipo 1**
+  find:
+    paths: "{{ rsync_path }}"
+    patterns: "*.xml"
+    recurse: yes
+  register: found_xmls
+
+- name: DEBUG - Todos los XML encontrados
+  debug:
+    var: found_xmls.files
+
+- name: Filtrar solo los XML dentro de subdirectorios tipo 1**
+  set_fact:
+    filtered_xmls: >-
+      {{ found_xmls.files |
+         selectattr('path', 'search', '/1\\d{2}/') |
+         list }}
+
+- name: DEBUG - XMLs filtrados
+  debug:
+    var: filtered_xmls
+
+- name: DEBUG - Paths de XML encontrados
+  debug:
+    msg: "{{ item.path }}"
+  loop: "{{ found_xmls.files }}"
+
+
+- name: Incluir tareas para crear cada VM desde su XML
+  include_tasks: process_xml_vm.yml
+  loop: "{{ filtered_xmls }}"
+  loop_control:
+    loop_var: xml_file

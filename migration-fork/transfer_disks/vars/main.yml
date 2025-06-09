@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+# vars file for transfer_disks
+# transfer_disks/vars/main.yml
+
+rsync_path: /tmp/vm                           # Ruta en el host KVM donde están los YAMLs
+remote_vm_path: /var/lib/vz/images            # Ruta base en el host Proxmox
+starting_vmid: 150                            # Primer ID de VM válido en Proxmox

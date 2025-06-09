@@ -1,0 +1,20 @@
+- name: Copiar script de conversión xml_to_yaml.py
+  ansible.builtin.copy:
+    src: xml_to_yaml.py
+    dest: /tmp/xml_to_yaml.py
+    mode: '0755'
+
+- name: Convertir XML a YAML
+  ansible.builtin.command: >
+    /usr/bin/python3 /tmp/xml_to_yaml.py {{ rsync_path }}/{{ item }}.xml {{ rsync_path }}/{{ item }}.yml
+  args:
+    creates: "{{ rsync_path }}/{{ item }}.yml"
+
+- name: Leer YAML generado
+  ansible.builtin.slurp:
+    src: "{{ rsync_path }}/{{ item }}.yml"
+  register: raw_vm_info
+
+- name: Parsear YAML como variable
+  ansible.builtin.set_fact:
+    vm_info: "{{ raw_vm_info['content'] | b64decode | from_yaml }}"

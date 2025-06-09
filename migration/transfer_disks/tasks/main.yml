@@ -24,16 +24,18 @@
   set_fact:
     existing_vmids: "{{ existing_vmids_raw.stdout_lines | map('int') | list }}"
 
-- name: Generar VMIDs libres desde 150
+- name: Generar lista de vmid disponibles desde 150
   set_fact:
-    vm_ids: >-
+    available_vmids: >-
       {{
-        dict(vm_names | zip(
-          range(150, 150 + vm_names | length)
-            | reject('in', existing_vmids)
-            | list
-        ))
+        range(150, 300)
+        | reject('in', existing_vmids)
+        | list
       }}
+
+- name: Asignar vmids a las VMs
+  set_fact:
+    vm_ids: "{{ dict(vm_names | zip(available_vmids[:(vm_names | length)])) }}"
 
 - name: Rsync de discos al host Proxmox por VM
   synchronize:
@@ -47,4 +49,18 @@
   loop_control:
     label: "{{ item.0.key }} -> {{ item.1 }}"
   delegate_to: "{{ kvm_host_ip }}"
+
+- name: Rsync de XMLs al host Proxmox por VM
+  synchronize:
+    src: "/tmp/{{ item.key }}.xml"
+    dest: "{{ rsync_user }}@{{ proxmox_host_ip }}:{{ rsync_path }}/{{ vm_ids[item.key] }}/"
+    mode: push
+    rsync_opts:
+      - "--progress"
+      - "--partial"
+  loop: "{{ vm_ids | dict2items }}"
+  loop_control:
+    label: "{{ item.key }} -> XML"
+  delegate_to: "{{ kvm_host_ip }}"
+
 

@@ -1,0 +1,13 @@
+- name: Buscar directorios de VMs en el path de imágenes
+  find:
+    paths: "{{ proxmox_image_path }}"
+    file_type: directory
+    use_regex: true
+    patterns: '^\d+$'
+  register: vm_dirs
+
+- name: Incluir creación por cada definición encontrada
+  include_tasks: process_vm_info.yml
+  loop: "{{ vm_dirs.files }}"
+  loop_control:
+    loop_var: vm_dir
