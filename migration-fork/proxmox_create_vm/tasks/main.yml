@@ -1,13 +1,16 @@
-- name: Buscar directorios de VMs en el path de imágenes
+- name: Buscar YAMLs de VM en {{ proxmox_image_path }}
   find:
     paths: "{{ proxmox_image_path }}"
-    file_type: directory
-    use_regex: true
-    patterns: '^\d+$'
-  register: vm_dirs
+    patterns: "*.yml"
+    use_regex: false
+    recurse: true
+  register: vm_yaml_files
 
-- name: Incluir creación por cada definición encontrada
-  include_tasks: process_vm_info.yml
-  loop: "{{ vm_dirs.files }}"
+- name: Procesar cada VM encontrada
+  include_tasks: process_vm.yml
+  loop: "{{ vm_yaml_files.files }}"
   loop_control:
-    loop_var: vm_dir
+    label: "{{ item.path }}"
+  vars:
+    vmid: "{{ item.path.split('/')[-2] }}"
+    vmname: "{{ item.path | basename | regex_replace('\\.yml$', '') }}"

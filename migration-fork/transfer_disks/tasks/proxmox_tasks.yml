@@ -1,31 +1,28 @@
-# transfer_disks/tasks/proxmox_tasks.yml
-- name: Crear directorio de destino en Proxmox para cada VM
-  ansible.builtin.file:
-    path: "/var/lib/vz/images/{{ item.vmid }}"
-    state: directory
-    mode: '0755'
-  delegate_to: "{{ proxmox_host_ip }}"
-  loop: "{{ transfer_list }}"
-  loop_control:
-    label: "{{ item.vmname }}"
-
-- name: Copiar disco(s) de VM a Proxmox
-  ansible.builtin.copy:
-    src: "{{ disk }}"
-    dest: "/var/lib/vz/images/{{ item.vmid }}/{{ disk | basename }}"
-    mode: '0644'
-  delegate_to: "{{ proxmox_host_ip }}"
+- name: Rsync de discos al host Proxmox por VM
+  ansible.posix.synchronize:
+    src: "{{ item.1 }}"
+    dest: "{{ rsync_user }}@{{ proxmox_host }}:{{ proxmox_image_path }}/{{ item.0.vmid }}/"
+    mode: push
+    rsync_opts:
+      - "--progress"
+      - "--partial"
   loop: "{{ transfer_list | subelements('disks') }}"
   loop_control:
-    label: "{{ item.0.vmname }} - {{ item.1 }}"
+    label: "{{ item.0.vmname }} -> {{ item.1 }}"
+  delegate_to: "{{ kvm_host }}"
 
-
-- name: Copiar archivo YAML a Proxmox
-  ansible.builtin.copy:
+- name: Rsync de YAMLs al host Proxmox por VM
+  ansible.posix.synchronize:
     src: "{{ item.yaml }}"
-    dest: "/var/lib/vz/images/{{ item.vmid }}/{{ item.vmname }}.yml"
-    mode: '0644'
-  delegate_to: "{{ proxmox_host_ip }}"
+    dest: "{{ rsync_user }}@{{ proxmox_host }}:{{ proxmox_image_path }}/{{ item.vmid }}/"
+    mode: push
+    rsync_opts:
+      - "--progress"
+      - "--partial"
   loop: "{{ transfer_list }}"
   loop_control:
     label: "{{ item.vmname }}"
+  delegate_to: "{{ kvm_host }}"
+
+
+

@@ -1,0 +1,72 @@
+- name: Leer YAML de la VM desde {{ vmname }}
+  ansible.builtin.slurp:
+    src: "{{ proxmox_image_path }}/{{ vmid }}/{{ vmname }}.yml"
+  register: raw_vm_data
+
+- name: Decodificar YAML y almacenar como variable
+  set_fact:
+    vm_data: "{{ raw_vm_data.content | b64decode | from_yaml }}"
+
+- name: Crear máquina virtual en Proxmox
+  ansible.builtin.command: >
+    qm create {{ vmid }}
+    --name {{ vmname }}
+    --memory {{ (vm_data.domain.memory['#text'] | int // 1024) | default(512) }}
+    --cores {{ vm_data.domain.vcpu['#text'] | default(1) }}
+  when: vm_data.domain.memory is defined and vm_data.domain.vcpu is defined
+
+- name: Importar discos al almacenamiento local-lvm
+  ansible.builtin.command: >
+    qm importdisk {{ vmid }}
+    {{ disk.source['@file'] | basename }}
+    local-lvm
+    --format {{ disk.driver['@type'] | default('qcow2') }}
+  args:
+    chdir: "{{ proxmox_image_path }}/{{ vmid }}"
+  loop: >-
+    {{
+      vm_data.domain.devices.disk
+      if vm_data.domain.devices.disk is iterable
+      else [vm_data.domain.devices.disk]
+    }}
+  loop_control:
+    loop_var: disk
+    label: "{{ disk.source['@file'] | basename }}"
+  when:
+    - disk['@device'] == 'disk'
+    - disk.source is defined
+    - disk.source['@file'] is defined
+
+- name: Adjuntar discos a la VM
+  ansible.builtin.command: >
+    qm set {{ vmid }}
+    --scsihw virtio-scsi-pci
+    --{{ disk.target['@bus'] }}0 {{ "local-lvm:vm-{{ vmid }}-disk-0" }}
+  loop: >-
+    {{
+      vm_data.domain.devices.disk
+      if vm_data.domain.devices.disk is iterable
+      else [vm_data.domain.devices.disk]
+    }}
+  loop_control:
+    loop_var: disk
+    label: "Attach {{ disk.target['@bus'] }} - {{ disk.source['@file'] | basename }}"
+  when:
+    - disk['@device'] == 'disk'
+    - disk.target is defined
+    - disk.target['@bus'] is defined
+
+- name: Añadir interfaces de red
+  ansible.builtin.command: >
+    qm set {{ vmid }}
+    --net{{ index }} model={{ interface['@model'] | default('virtio') }},bridge=vmbr0
+  loop: >-
+    {{
+      vm_data.domain.devices.interface
+      if vm_data.domain.devices.interface is iterable
+      else [vm_data.domain.devices.interface]
+    }}
+  loop_control:
+    loop_var: interface
+    index_var: index
+    label: "NIC {{ index }} - {{ interface['@model'] | default('virtio') }}"

@@ -6,8 +6,5 @@
     - name: Incluir tareas del KVM
       include_tasks: kvm_tasks.yml
 
-- name: Tareas en el host Proxmox
-  when: inventory_hostname in groups['proxmox_host']
-  block:
-    - name: Incluir tareas de Proxmox
-      include_tasks: proxmox_tasks.yml
+- name: Incluir tareas de Proxmox
+  include_tasks: proxmox_tasks.yml
