@@ -1,2 +1,3 @@
 collections:
   - name: community.mysql
+  - name: community.general.proxmox_kvm
