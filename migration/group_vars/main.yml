@@ -1,5 +1,4 @@
 ---
-# IPs de los hosts (usados para conexión vía VPN WireGuard)
 kvm_host_ip: 192.168.1.142
 proxmox_host_ip: 192.168.1.254
 
