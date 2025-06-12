@@ -2,6 +2,8 @@
 - name: Desplegar Oracle Database 23c AI con base de datos personalizada
   hosts: oracle_servers
   become: yes
+  vars_files:
+    - group_vars/wordpress/vault.yml
   roles:
     - common
     - oracle_install
