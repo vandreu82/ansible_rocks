@@ -6,7 +6,7 @@
   roles:
     - gather_vm_info
   vars_files:
-    - group_vars/wordpress/vault.yml
+    - group_vars/migration/vault.yml
 
 - name: Fase 2 - Transferir discos
   tags: transfer
@@ -15,7 +15,7 @@
   roles:
     - transfer_disks
   vars_files:
-    - group_vars/wordpress/vault.yml
+    - group_vars/migration/vault.yml
 
 - name: Fase 3 - Crear VMs
   tags: create
@@ -24,7 +24,7 @@
   roles:
     - proxmox_create_vm
   vars_files:
-    - group_vars/wordpress/vault.yml
+    - group_vars/migration/vault.yml
 
 - name: Fase 4 - Validar arranque
   tags: check
@@ -33,5 +33,5 @@
   roles:
     - validate_boot
   vars_files:
-    - group_vars/wordpress/vault.yml
+    - group_vars/migration/vault.yml
   
