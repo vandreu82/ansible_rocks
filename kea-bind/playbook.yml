@@ -1,5 +1,5 @@
 - name: Instalar y configurar DHCP (Kea) y DNS (BIND)
-  hosts: kea-bind-router_servers
+  hosts: kea_bind_router_servers
   become: true
   roles:
     - network-setup
