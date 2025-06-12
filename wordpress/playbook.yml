@@ -3,6 +3,9 @@
   hosts: wordpress_servers
   become: yes
 
+  vars_files:
+    - group_vars/vault.yml  # Añade esta línea para incluir las variables cifradas
+  
   roles:
     - wp_db
     - wordpress

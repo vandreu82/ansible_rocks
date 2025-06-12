@@ -1,2 +1,3 @@
 .vscode/
 .vault_pass.txt
+wordpress/ansible.cfg
