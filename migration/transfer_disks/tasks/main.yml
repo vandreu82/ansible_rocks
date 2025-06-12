@@ -17,7 +17,7 @@
 - name: Obtener lista de VMID existentes en Proxmox
   shell: "ls /etc/pve/qemu-server | grep -oE '^[0-9]+'"
   register: existing_vmids_raw
-  delegate_to: "{{ proxmox_host_ip }}"
+  delegate_to: "{{ proxmox_host }}"
   changed_when: false
 
 - name: Convertir lista de VMIDs existentes a enteros
@@ -40,7 +40,7 @@
 - name: Rsync de discos al host Proxmox por VM
   synchronize:
     src: "{{ item.1 }}"
-    dest: "{{ rsync_user }}@{{ proxmox_host_ip }}:{{ rsync_path }}/{{ vm_ids[item.0.key] }}/"
+    dest: "{{ rsync_user }}@{{ proxmox_host }}:{{ rsync_path }}/{{ vm_ids[item.0.key] }}/"
     mode: push
     rsync_opts:
       - "--progress"
@@ -48,12 +48,12 @@
   loop: "{{ vms_disks | dict2items | subelements('value') }}"
   loop_control:
     label: "{{ item.0.key }} -> {{ item.1 }}"
-  delegate_to: "{{ kvm_host_ip }}"
+  delegate_to: "{{ kvm_host }}"
 
 - name: Rsync de XMLs al host Proxmox por VM
   synchronize:
     src: "/tmp/{{ item.key }}.xml"
-    dest: "{{ rsync_user }}@{{ proxmox_host_ip }}:{{ rsync_path }}/{{ vm_ids[item.key] }}/"
+    dest: "{{ rsync_user }}@{{ proxmox_host }}:{{ rsync_path }}/{{ vm_ids[item.key] }}/"
     mode: push
     rsync_opts:
       - "--progress"
@@ -61,6 +61,6 @@
   loop: "{{ vm_ids | dict2items }}"
   loop_control:
     label: "{{ item.key }} -> XML"
-  delegate_to: "{{ kvm_host_ip }}"
+  delegate_to: "{{ kvm_host }}"
 
 
