@@ -3,7 +3,7 @@
   hosts: oracle_servers
   become: yes
   vars_files:
-    - group_vars/vault.yml
+    - oracle-playbook/group_vars/vault.yml
   roles:
     - common
     - oracle_install
