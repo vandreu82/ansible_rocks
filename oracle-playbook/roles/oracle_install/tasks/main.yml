@@ -18,9 +18,10 @@
     content: |
       #!/usr/bin/expect -f
       set timeout -1
+      set password "{{ oracle_sys_password }}"
       spawn /etc/init.d/oracle-free-23ai configure
-      expect "Specify a password*" { send "Oracle123\r" }
-      expect "Confirm the password*" { send "Oracle123\r" }
+      expect "Specify a password*" { send "$password\r" }
+      expect "Confirm the password*" { send "$password\r" }
       expect eof
   become: yes
 
