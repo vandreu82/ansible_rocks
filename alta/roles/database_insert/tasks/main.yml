@@ -9,6 +9,7 @@
       INSERT INTO vms (vmid, name, tags, user_id)
       VALUES ({{ item.vmid }}, '{{ item.name }}', '', {{ owner_id }});
   loop: "{{ vms_ready }}"
+  delegate_to: localhost
 
 - name: Insertar propietario en vm_owner
   community.mysql.mysql_query:
