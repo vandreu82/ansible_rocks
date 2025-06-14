@@ -6,5 +6,9 @@
 
   tasks:
 
+    - name: Esperar 10 segundos.
+      pause:
+        seconds: 10
+
     - name: Ejecutar módulo ping de Ansible
       ansible.builtin.ping:
