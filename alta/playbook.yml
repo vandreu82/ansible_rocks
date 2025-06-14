@@ -6,17 +6,6 @@
   vars_files:
     - groups_vars/vault.yml
 
-  vars:
-    owner_id: 2
-    vm_info:
-      - vmid: 151
-        ip: "192.168.0.252/24"
-      - vmid: 152
-        ip: "192.168.0.253/24"
-    gateway: "192.168.0.1"
-    proxmox_user: migracion@pam
-
-
   roles:
     - proxmox_info
     - database_insert
