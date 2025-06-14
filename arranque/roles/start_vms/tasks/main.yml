@@ -27,8 +27,9 @@
 
 
 - name: Arrancar las máquinas virtuales
-  command: qm start {{ item }}
+  shell: qm start {{ item }}
   loop: "{{ vmids }}"
+  when: vmids | length > 0
 
 - name: DEBUG - VMIDs extraídos
   debug:
