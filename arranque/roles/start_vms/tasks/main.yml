@@ -1,0 +1,7 @@
+---
+- name: Arrancar las máquinas virtuales con IDs específicos
+  shell: qm start {{ item }}
+  loop: "{{ vmids }}"
+
+
+# tasks file for start_vms

@@ -1,0 +1,14 @@
+---
+---
+- name: Verificar conectividad con los servidores WordPress
+  hosts: wordpress_servers:haproxy_servers
+  gather_facts: no
+
+  tasks:
+
+    - name: Esperar 10 segundos.
+      pause:
+        seconds: 10
+
+    - name: Ejecutar módulo ping de Ansible
+      ansible.builtin.ping:
