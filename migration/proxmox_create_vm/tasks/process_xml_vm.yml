@@ -8,11 +8,6 @@
   set_fact:
     xml_content: "{{ vm_xml.content | b64decode }}"
 
-- name: DEBUG - Contenido XML
-  debug:
-    msg: "{{ xml_content }}"
-
-# --- Validar y extraer RAM ---
 - name: Extraer memoria de la VM
   set_fact:
     vm_ram_matches: "{{ xml_content | regex_findall('<memory[^>]*?>(.*?)</memory>') }}"
@@ -44,10 +39,6 @@
   set_fact:
     vm_name: "{{ vm_name_matches[0] | trim }}"
 
-- name: DEBUG - Nombre de la VM detectado
-  debug:
-    var: vm_name
-
 # --- Validar y extraer cores ---
 - name: Extraer cores de la VM
   set_fact:
@@ -61,10 +52,6 @@
 - name: Definir número de cores
   set_fact:
     vm_cores: "{{ vm_cores_matches[0] | trim | int }}"
-
-- name: DEBUG - Núcleos detectados
-  debug:
-    var: vm_cores
 
 # --- Detectar si hay interfaz de red ---
 - name: Detectar interfaz de red
@@ -83,10 +70,10 @@
     recurse: no
   register: found_disks
 
-- name: Verificar que el disco existe
-  fail:
-    msg: "No se encontró un archivo de disco .qcow2 en {{ xml_file.path | dirname }} para la VM {{ vm_name }}."
-  when: found_disks.files | length == 0
+# - name: Verificar que el disco existe
+#  fail:
+#    msg: "No se encontró un archivo de disco .qcow2 en {{ xml_file.path | dirname }} para la VM {{ vm_name }}."
+#  when: found_disks.files | length == 0
 
 - name: Seleccionar el disco principal
   set_fact:
