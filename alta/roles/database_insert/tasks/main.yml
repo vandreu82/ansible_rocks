@@ -21,4 +21,5 @@
       INSERT INTO vm_owner (vmid, user_id)
       VALUES ({{ item.vmid }}, {{ owner_id }});
   loop: "{{ vms_ready }}"
+  delegate_to: localhost
 # tasks file for database_insert
