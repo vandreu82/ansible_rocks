@@ -1,0 +1,22 @@
+---
+- name: Obtener información de las VMs desde Proxmox
+  community.general.proxmox_vm_info:
+    api_host: "{{ proxmox_host }}"
+    api_user: "{{ proxmox_user }}"
+    api_token_id: "{{ proxmox_token_id }}"
+    api_token_secret: "{{ proxmox_token_secret }}"
+    node: "{{ proxmox_node }}"
+    type: qemu
+    vmid: "{{ item.vmid }}"
+  loop: "{{ vm_info }}"
+  register: vminfo
+
+- name: Construir lista de VMs con nombre e IP
+  set_fact:
+    vms_ready: "{{ vms_ready | default([]) + [ {
+      'vmid': item.item.vmid,
+      'name': (item.vm[0].name if item.vm is defined and item.vm|length > 0 else 'vm' ~ item.item.vmid),
+      'ip': item.item.ip
+    } ] }}"
+  loop: "{{ vminfo.results }}"
+# tasks file for proxmox_info

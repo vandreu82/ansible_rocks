@@ -1,0 +1,24 @@
+---
+- name: Insertar credencial de tipo password
+  community.mysql.mysql_query:
+    login_host: "{{ db_host }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_pass }}"
+    login_db: "{{ db_name }}"
+    query: >
+      INSERT INTO credenciales (vmid, tipo, usuario, clave, ssh_key, ssh_private_key, ip, gateway)
+      VALUES ({{ item.vmid }}, 'password', 'virt', 'asdf', NULL, NULL, '{{ item.ip }}', '{{ gateway }}');
+  loop: "{{ vms_ready }}"
+
+- name: Insertar credencial de tipo ssh
+  community.mysql.mysql_query:
+    login_host: "{{ db_host }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_pass }}"
+    login_db: "{{ db_name }}"
+    query: >
+      INSERT INTO credenciales (vmid, tipo, usuario, clave, ssh_key, ssh_private_key, ip, gateway)
+      VALUES ({{ item.vmid }}, 'ssh', 'virt', '', '{{ ssh_public_key }}', '{{ ssh_private_key | replace('\n', '\\n') }}', '{{ item.ip }}', '{{ gateway }}');
+  loop: "{{ vms_ready }}"
+
+# tasks file for credentials_insert

@@ -1,0 +1,21 @@
+---
+- name: Alta de VMs en base de datos desde Proxmox
+  hosts: proxmox_host
+  gather_facts: false
+
+  vars_files:
+    - vault.yml
+
+  vars:
+    owner_id: 2
+    vm_info:
+      - vmid: 151
+        ip: "192.168.0.252/24"
+      - vmid: 152
+        ip: "192.168.0.253/24"
+    gateway: "192.168.0.1"
+
+  roles:
+    - proxmox_info
+    - database_insert
+    - credentials_insert
