@@ -1,0 +1,7 @@
+---
+- name: Ping a los servidores WordPress
+  hosts: wordpress_servers
+  gather_facts: no
+  tasks:
+    - name: Hacer ping a los hosts del grupo wordpress_servers
+      ansible.builtin.ping:

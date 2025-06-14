@@ -1,0 +1,10 @@
+---
+---
+- name: Verificar conectividad con los servidores WordPress
+  hosts: wordpress_servers
+  gather_facts: no
+
+  tasks:
+
+    - name: Ejecutar módulo ping de Ansible
+      ansible.builtin.ping:
