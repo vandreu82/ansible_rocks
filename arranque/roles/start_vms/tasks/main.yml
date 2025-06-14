@@ -14,12 +14,15 @@
 - name: Extraer VMIDs desde las líneas filtradas
   set_fact:
     vmids: >-
-      {{ matched_lines.results
-         | map(attribute='ansible_facts.vm_lines')
-         | flatten
-         | map('regex_search', '^\\s*(\\d+)', '\\1')
-         | map('int')
-         | list }}
+      {{
+        matched_lines.results
+        | map(attribute='ansible_facts.vm_lines')
+        | flatten
+        | select('match', '^\\s*\\d+')
+        | map('regex_search', '^\\s*(\\d+)', '\\1')
+        | map('int')
+        | list
+      }}
 
 - name: Arrancar las máquinas virtuales
   command: qm start {{ item }}
