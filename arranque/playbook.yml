@@ -1,0 +1,8 @@
+---
+- name: Iniciar VMs Proxmox con rol
+  hosts: proxmox
+  gather_facts: false
+  become: true
+
+  roles:
+    - start_vms
