@@ -4,7 +4,7 @@
   gather_facts: false
 
   vars_files:
-    - groups_vars/vault.yaml
+    - group_vars/vault.yaml
 
   roles:
     - proxmox_info
