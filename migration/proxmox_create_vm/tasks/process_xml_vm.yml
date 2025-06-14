@@ -65,7 +65,7 @@
 # --- Localizar el disco qcow2 ---
 - name: Buscar disco asociado a la VM
   find:
-    paths: "{{ xml_file.path | dirname }}"
+    paths: "{{ xml_file.path | dirname }}/"
     patterns: "*.qcow2"
     recurse: no
   register: found_disks
