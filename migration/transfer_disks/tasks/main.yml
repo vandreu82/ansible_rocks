@@ -45,7 +45,7 @@
     rsync_opts:
       - "--progress"
       - "--partial"
-    ssh_args: "-o ProxyJump={{ rsync_user }}@192.168.1.129"
+    _ssh_args: "-o ProxyJump={{ rsync_user }}@192.168.1.129"
   loop: "{{ vms_disks | dict2items | subelements('value') }}"
   loop_control:
     label: "{{ item.0.key }} -> {{ item.1 }}"
