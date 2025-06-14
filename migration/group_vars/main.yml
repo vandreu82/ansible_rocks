@@ -1,6 +1,6 @@
 ---
 kvm_host_ip: 192.168.1.142
-proxmox_host_ip: 192.168.1.254
+proxmox_host_ip: 192.168.0.199
 
 # Configuración de red en Proxmox
 vm_network_bridge: vmbr0
