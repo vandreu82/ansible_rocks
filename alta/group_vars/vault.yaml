@@ -1,9 +1,9 @@
 ---
-proxmox_host: 192.168.0.199
+proxmox_host: 192.168.0.200
 proxmox_user: migracion@pam
 proxmox_token_id: migracion
 proxmox_token_secret: a13e9df4-14f9-444c-91a3-b778de535469
-proxmox_node: forge
+proxmox_node: kensa
 db_host: 192.168.0.160
 db_user: pyia_user
 db_pass: DieFadiehaeto8

@@ -22,10 +22,6 @@
   set_fact:
     vm_ram: "{{ (vm_ram_matches[0] | trim | int) // 1024 }}"
 
-- name: DEBUG - RAM detectada en MB
-  debug:
-    var: vm_ram
-
 # --- Validar y extraer nombre de la VM ---
 - name: Extraer nombre de la VM
   set_fact:
@@ -39,10 +35,6 @@
 - name: Definir nombre de la VM
   set_fact:
     vm_name: "{{ vm_name_matches[0] | trim }}"
-
-- name: DEBUG - Nombre de la VM detectado
-  debug:
-    var: vm_name
 
 # --- Validar y extraer cores ---
 - name: Extraer cores de la VM
@@ -97,7 +89,7 @@
     api_token_id: "{{ proxmox_token_id }}"
     api_token_secret: "{{ proxmox_token_secret }}"
     api_host: "{{ proxmox_host }}"
-    node: "forge"
+    node: "kensa"
     vmid: "{{ xml_file.path.split('/')[-2] }}"
     name: "{{ vm_name }}"
     memory: "{{ vm_ram }}"
