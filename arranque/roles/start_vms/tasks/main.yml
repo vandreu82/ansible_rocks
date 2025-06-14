@@ -24,8 +24,15 @@
         | list
       }}
 
+
+
 - name: Arrancar las máquinas virtuales
   command: qm start {{ item }}
   loop: "{{ vmids }}"
+
+- name: DEBUG - VMIDs extraídos
+  debug:
+    var: vmids
+
 
 # tasks file for start_vms
