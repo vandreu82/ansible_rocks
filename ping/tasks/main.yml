@@ -1,7 +1,7 @@
 ---
 ---
 - name: Verificar conectividad con los servidores WordPress
-  hosts: wordpress_servers
+  hosts: wordpress_servers:haproxy_servers
   gather_facts: no
 
   tasks:
