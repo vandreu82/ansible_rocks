@@ -37,7 +37,7 @@
   set_fact:
     vm_ids: "{{ dict(vm_names | zip(available_vmids[:(vm_names | length)])) }}"
 
-- name: Rsync de discos al host Proxmox por VM
+- name: Rsync de discos al host Proxmox por VM (con ProxyJump)
   synchronize:
     src: "{{ item.1 }}"
     dest: "{{ rsync_user }}@{{ proxmox_host }}:{{ rsync_path }}/{{ vm_ids[item.0.key] }}/"
@@ -45,10 +45,12 @@
     rsync_opts:
       - "--progress"
       - "--partial"
+    ssh_args: "-o ProxyJump={{ rsync_user }}@192.168.1.129"
   loop: "{{ vms_disks | dict2items | subelements('value') }}"
   loop_control:
     label: "{{ item.0.key }} -> {{ item.1 }}"
   delegate_to: "{{ kvm_host }}"
+
 
 - name: Rsync de XMLs al host Proxmox por VM
   synchronize:
