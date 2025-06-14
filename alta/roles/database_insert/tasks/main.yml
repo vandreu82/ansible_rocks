@@ -1,15 +1,15 @@
 ---
-#- name: Insertar VM en tabla vms
-#  community.mysql.mysql_query:
-#    login_host: "{{ db_host }}"
-#    login_user: "{{ db_user }}"
-#    login_password: "{{ db_pass }}"
-#    login_db: "{{ db_name }}"
-#    query: >
-#      INSERT INTO vms (vmid, name, tags, user_id)
-#      VALUES ({{ item.vmid }}, '{{ item.name }}', '', {{ owner_id }});
-#  loop: "{{ vms_ready }}"
-#  delegate_to: localhost
+- name: Insertar VM en tabla vms
+  community.mysql.mysql_query:
+    login_host: "{{ db_host }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_pass }}"
+    login_db: "{{ db_name }}"
+    query: >
+      INSERT INTO vms (vmid, name, tags, user_id)
+      VALUES ({{ item.vmid }}, '{{ item.name }}', '', {{ owner_id }});
+  loop: "{{ vms_ready }}"
+  delegate_to: localhost
 
 - name: Insertar propietario en vm_owner
   community.mysql.mysql_query:
