@@ -8,6 +8,7 @@
     node: "{{ proxmox_node }}"
     type: qemu
     vmid: "{{ item.vmid }}"
+  delegate_to: localhost
   loop: "{{ vm_info }}"
   register: vminfo
 
