@@ -60,6 +60,8 @@
     rsync_opts:
       - "--progress"
       - "--partial"
+    _ssh_args: "-o ProxyJump={{ rsync_user }}@192.168.1.129"
+
   loop: "{{ vm_ids | dict2items }}"
   loop_control:
     label: "{{ item.key }} -> XML"
