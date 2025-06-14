@@ -8,6 +8,7 @@
   set_fact:
     xml_content: "{{ vm_xml.content | b64decode }}"
 
+# --- Validar y extraer RAM ---
 - name: Extraer memoria de la VM
   set_fact:
     vm_ram_matches: "{{ xml_content | regex_findall('<memory[^>]*?>(.*?)</memory>') }}"
@@ -39,6 +40,10 @@
   set_fact:
     vm_name: "{{ vm_name_matches[0] | trim }}"
 
+- name: DEBUG - Nombre de la VM detectado
+  debug:
+    var: vm_name
+
 # --- Validar y extraer cores ---
 - name: Extraer cores de la VM
   set_fact:
@@ -53,6 +58,10 @@
   set_fact:
     vm_cores: "{{ vm_cores_matches[0] | trim | int }}"
 
+- name: DEBUG - Núcleos detectados
+  debug:
+    var: vm_cores
+
 # --- Detectar si hay interfaz de red ---
 - name: Detectar interfaz de red
   set_fact:
@@ -65,19 +74,21 @@
 # --- Localizar el disco qcow2 ---
 - name: Buscar disco asociado a la VM
   find:
-    paths: "{{ xml_file.path | dirname }}/"
+    paths: "{{ xml_file.path | dirname }}"
     patterns: "*.qcow2"
     recurse: no
   register: found_disks
 
-# - name: Verificar que el disco existe
-#  fail:
-#    msg: "No se encontró un archivo de disco .qcow2 en {{ xml_file.path | dirname }} para la VM {{ vm_name }}."
-#  when: found_disks.files | length == 0
+- name: Verificar que el disco existe
+  fail:
+    msg: "No se encontró un archivo de disco .qcow2 en {{ xml_file.path | dirname }} para la VM {{ vm_name }}."
+  when: found_disks.files | length == 0
+  delegate to: proxmox_host
 
 - name: Seleccionar el disco principal
   set_fact:
     disk_file: "{{ found_disks.files[0].path }}"
+  delegate to: proxmox_host
 
 # --- Crear la VM base ---
 - name: Crear VM base en Proxmox
@@ -104,19 +115,19 @@
     qm importdisk {{ xml_file.path.split('/')[-2] }}
     {{ disk_file }}
     local-lvm
-  delegate_to: 192.168.1.254
+  delegate_to: proxmox_host
 
 # --- Adjuntar el disco importado ---
 - name: Adjuntar disco al hardware de la VM
   ansible.builtin.command: >
     qm set {{ xml_file.path.split('/')[-2] }} --scsi0 local-lvm:vm-{{ xml_file.path.split('/')[-2] }}-disk-0
-  delegate_to: 192.168.1.254
+  delegate_to: proxmox_host
 
 # --- Configurar el disco como bootdisk ---
 - name: Configurar disco de arranque
   ansible.builtin.command: >
     qm set {{ xml_file.path.split('/')[-2] }} --boot order=scsi0
-  delegate_to: 192.168.1.254
+  delegate_to: proxmox_host
 
 
 
