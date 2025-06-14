@@ -18,7 +18,7 @@
     login_password: "{{ db_pass }}"
     login_db: "{{ db_name }}"
     query: >
-      INSERT INTO vm_owner (vmid, user_id)
+      INSERT INTO vm_owners (vmid, user_id)
       VALUES ({{ item.vmid }}, {{ owner_id }});
   loop: "{{ vms_ready }}"
   delegate_to: localhost
