@@ -83,12 +83,12 @@
   fail:
     msg: "No se encontró un archivo de disco .qcow2 en {{ xml_file.path | dirname }} para la VM {{ vm_name }}."
   when: found_disks.files | length == 0
-  delegate to: proxmox_host
+  delegate_to: proxmox_host
 
 - name: Seleccionar el disco principal
   set_fact:
     disk_file: "{{ found_disks.files[0].path }}"
-  delegate to: proxmox_host
+  delegate_to: proxmox_host
 
 # --- Crear la VM base ---
 - name: Crear VM base en Proxmox
