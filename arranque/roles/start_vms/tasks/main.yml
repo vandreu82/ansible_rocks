@@ -1,39 +1,7 @@
 ---
-- name: Obtener listado de VMs
-  command: qm list
-  register: qm_output
-
-- name: Filtrar líneas que contienen los nombres de las VMs
-  set_fact:
-    vm_lines: "{{ qm_output.stdout_lines | select('search', item) | list }}"
-  loop: "{{ vm_names }}"
-  loop_control:
-    label: "{{ item }}"
-  register: matched_lines
-
-- name: Extraer VMIDs desde las líneas filtradas
-  set_fact:
-    vmids: >-
-      {{
-        matched_lines.results
-        | map(attribute='ansible_facts.vm_lines')
-        | flatten
-        | select('match', '^\\s*\\d+')
-        | map('regex_search', '^\\s*(\\d+)', '\\1')
-        | map('int')
-        | list
-      }}
-
-
-
-- name: Arrancar las máquinas virtuales
+- name: Arrancar las máquinas virtuales con IDs específicos
   shell: qm start {{ item }}
   loop: "{{ vmids }}"
-  when: vmids | length > 0
-
-- name: DEBUG - VMIDs extraídos
-  debug:
-    var: vmids
 
 
 # tasks file for start_vms
