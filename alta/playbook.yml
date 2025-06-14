@@ -14,6 +14,8 @@
       - vmid: 152
         ip: "192.168.0.253/24"
     gateway: "192.168.0.1"
+    proxmox_user: migracion@pam
+
 
   roles:
     - proxmox_info
