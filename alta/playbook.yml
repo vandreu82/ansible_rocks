@@ -4,7 +4,7 @@
   gather_facts: false
 
   vars_files:
-    - vault.yml
+    - groups_vars/vault.yml
 
   vars:
     owner_id: 2
