@@ -48,7 +48,7 @@
     ALTER SESSION SET CONTAINER=CDB$ROOT;
     ALTER SYSTEM SET db_create_file_dest = '/opt/oracle/oradata/FREE' SCOPE=BOTH;
     CREATE PLUGGABLE DATABASE INSTITUTO
-      ADMIN USER instituto_admin IDENTIFIED BY Oracle123;
+      ADMIN USER instituto_admin IDENTIFIED BY {{ oracle_sys_password }};
     ALTER PLUGGABLE DATABASE INSTITUTO OPEN;
     " | $ORACLE_HOME/bin/sqlplus -s / as sysdba
   become_user: oracle
@@ -83,5 +83,5 @@
     export ORACLE_HOME=/opt/oracle/product/23ai/dbhomeFree
     export PATH=$ORACLE_HOME/bin:$PATH
     export ORACLE_SID=FREE
-    $ORACLE_HOME/bin/sqlplus -s instituto_admin/Oracle123@//localhost:1521/instituto @/tmp/instituto_setup.sql
+    $ORACLE_HOME/bin/sqlplus -s instituto_admin/{{ oracle_sys_password }}@//localhost:1521/instituto @/tmp/instituto_setup.sql
   become_user: oracle
